@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">NetHelper</string>
+    <string name="udp">UDP</string>
+    <string name="tcpClient">TCP Client</string>
+    <string name="tcpServer">TCP Server</string>
+    <string name="ipConfig">IP Config</string>
+    <string name="targetIp">Target IP : </string>
+    <string name="targetPort">Target port : </string>
+    <string name="localPort">Local port : </string>
+    <string name="mySSID">%1$s</string>
+    <string name="myIP">%1$s</string>
+    <string name="myGateway">%1$s</string>
+    <string name="myNetmask">%1$s</string>
+    <string name="myMAC">%1$s</string>
+
+
+</resources>

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal">
+<RelativeLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/layoutInput"
+    >
+    <TextView
+        android:id="@+id/ipAddress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="40dp"
+        android:text="@string/targetIp"
+        android:textSize="18sp" />
+
+    <EditText
+        android:id="@+id/editTextIP"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/ipAddress"
+        android:layout_alignEnd="@+id/editTextTP"
+        android:layout_marginStart="10dp"
+        android:layout_toRightOf="@+id/ipAddress"
+        android:ems="10"
+        android:inputType="text|number"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/targetPort"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/ipAddress"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="15dp"
+        android:text="@string/targetPort"
+        android:textSize="18sp" />
+
+    <EditText
+        android:id="@+id/editTextTP"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/targetPort"
+        android:layout_marginStart="10dp"
+        android:layout_toRightOf="@+id/targetPort"
+        android:ems="10"
+        android:inputType="number"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/sourcePort"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/targetPort"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="15dp"
+        android:text="@string/localPort"
+        android:textSize="18sp" />
+
+    <EditText
+        android:id="@+id/editTextSP"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/sourcePort"
+        android:layout_marginStart="10dp"
+        android:layout_toRightOf="@+id/sourcePort"
+        android:ems="10"
+        android:inputType="number"
+        android:textSize="20sp" />
+
+    <Button
+        android:id="@+id/btnConnect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/editTextSP"
+        android:layout_alignParentEnd="true"
+        android:text="Connect"
+        />
+</RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/layoutCom"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/layoutInput"
+        android:layout_above="@+id/layoutSend"
+        android:layout_marginTop="20dp"
+        >
+        <TextView
+            android:id="@+id/localIPUDP"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+<ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_below="@id/localIPUDP">
+    <TextView
+        android:id="@+id/communicationUDP"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true">
+    </TextView>
+</ScrollView>
+
+
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/layoutSend"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignStart="@+id/layoutInput"
+        android:layout_alignEnd="@id/layoutInput"
+        >
+        <EditText
+            android:id="@+id/editTextSend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/btnSend"
+            android:layout_marginStart="10dp"
+            android:ems="10"
+            android:inputType="text"
+            android:textSize="20sp" />
+        <Button
+            android:id="@+id/btnSend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:text="Send"
+            />
+
+
+    </RelativeLayout>
+
+
+
+</RelativeLayout>
