@@ -44,10 +44,10 @@ TM4C1294 Gateway
 - Pré-définition du résultat attendu de l'Appli Android
 - Etude de la possibilité de faire l'interface WEB 
 - Plan provisoire de fonctionnalité de l’application Android
--- Consultation de données sur les conditions mesurés par les capteurs : Température, humidité, etc. Deux formes : Diagramme, chiffre.
--- Contrôle d’interrupteur de lumières : ON et OFF
--- Alerte quand un état dépasse la limite : Par la notification de l’application
---Addition et suppression de périphériques : Bluetooth ou Internet  
++ Consultation de données sur les conditions mesurés par les capteurs : Température, humidité, etc. Deux formes : Diagramme, chiffre.
++ Contrôle d’interrupteur de lumières : ON et OFF
++ Alerte quand un état dépasse la limite : Par la notification de l’application
++ Addition et suppression de périphériques : Bluetooth ou Internet  
 -	Première étude de mode de communication entre le matériel et l’application
 
 
