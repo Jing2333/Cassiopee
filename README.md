@@ -69,5 +69,10 @@ Ensemble :
 - Rédiger le Cahier des charges    14/2 Mercredi prochain 
 
 
-
 #### Difficultés
+
+Bluetooth : HC05 on/off
+
+WiFi : ESP8266
+
+RTOS : Commence par sans RTOS, Apprendre RTOS au fil du temps 
