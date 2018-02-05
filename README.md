@@ -47,7 +47,7 @@ TM4C1294 Gateway
   - Alerte quand un état dépasse la limite : Par la notification de l’application
   - Addition et suppression de périphériques : Bluetooth ou Internet  
 - Etude de la possibilité de faire l'interface WEB 
--	Première étude de mode de communication entre le matériel et l’application
+- Première étude de mode de communication entre le matériel et l’application
 
 
 #### Tâches à venir
@@ -57,7 +57,7 @@ Pour la semaine prochaine, nous aurons les tâches ci-dessuous :
 Muyao Chen : 
 
 - Faire une exposé sur LwIP 	9/2 Vendredi (à fixer)
-- Etudier le module ESP8266	Résultat attendu : Réaliser la communication via ESP8266 et un autre terminal (ex. le smartphone)    9/2 Vendredi
+- Etudier le module ESP8266Résultat attendu : Réaliser la communication via ESP8266 et un autre terminal (ex. le smartphone)    9/2 Vendredi
 
 Jing Ye : 
 
