@@ -10,7 +10,9 @@ TM4C1294 Gateway
 - Essaie avec le nouveau module HC05
 - Etude du protocole LWIP
 - Présentation d'un exemple sur LWIP
-- ​
+- Etude du protocole TCP
+- Etude d'utilisation des sockets
+- Début de programmation
 - Planning provisoire (Livrable1)
 - Description du projet (Livrable2)
 - Mini compte-rendu (Livrable3)
@@ -26,7 +28,8 @@ Muyao CHEN
 - Terminer la partie de Bluetooth
 
 Jing YE
-
+- Communication avec un Arduino par TCP/UDP
+- Etude de la réalisation de HTTP sur Android
 
 
 ## CR 01 (01/02 - 04/02)
