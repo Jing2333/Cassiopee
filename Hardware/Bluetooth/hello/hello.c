@@ -38,11 +38,11 @@ __error__(char *pcFilename, uint32_t ui32Line)
 
 //*****************************************************************************
 //
-// The UART7 interrupt handler.
+// The UART7 Bluetooth interrupt handler.
 //
 //*****************************************************************************
 void
-UARTIntHandler(void)
+BTIntHandler(void)
 {
     uint32_t ui32Status;
 
@@ -169,7 +169,7 @@ ConfigureUARTBluetooth(void)
     //
     ROM_UARTConfigSetExpClk(UART7_BASE, g_ui32SysClock, 38400,
                             (UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE |
-                             UART_CONFIG_PAR_NONE));        //????
+                             UART_CONFIG_PAR_NONE));
 
 
     //
@@ -196,6 +196,11 @@ main(void)
                 SYSCTL_CFG_VCO_480), 120000000);
 
     //
+    // Configure the device pins.
+    //
+    PinoutSet(false, false);
+
+    //
     // Enable the GPIO port that is used for the on-board LED.
     //
     ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPION);
@@ -205,10 +210,38 @@ main(void)
     //
     ROM_GPIOPinTypeGPIOOutput(GPIO_PORTN_BASE, GPIO_PIN_0);
 
+
     //
-    // Configure the device pins.
+    // Enable the GPIO port that is used for KEY and VCC.
     //
-    PinoutSet(false, false);
+    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOC);
+
+    //
+    // Enable the GPIO pins for the KEY (PC7).
+    //
+    ROM_GPIOPinTypeGPIOOutput(GPIO_PORTC_BASE, GPIO_PIN_7);
+
+    //
+    // Enable the GPIO pins for the KEY (PC6).
+    //
+    ROM_GPIOPinTypeGPIOOutput(GPIO_PORTC_BASE, GPIO_PIN_6);
+
+    //
+    // Turn off the Bluetooth
+    //
+    GPIOPinWrite(GPIO_PORTC_BASE, GPIO_PIN_6, 0); // Key
+    GPIOPinWrite(GPIO_PORTC_BASE, GPIO_PIN_7, 0); // VCC
+
+    SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
+
+    //
+    // Enter the AT Mode
+    //
+    GPIOPinWrite(GPIO_PORTC_BASE, GPIO_PIN_6, GPIO_PIN_6);
+    SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
+    GPIOPinWrite(GPIO_PORTC_BASE, GPIO_PIN_7, GPIO_PIN_7); // VCC
+
+
 
     //
     // Enable the GPIO pins for the LED D1 (PN1).
@@ -221,10 +254,13 @@ main(void)
     ConfigureUART();
     ConfigureUARTBluetooth();
 
+
     //
     // Hello!
     //
     UARTprintf("Hello, world!\n");
+
+
 
     //
     // We are finished.  Hang around flashing D1.
