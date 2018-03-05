@@ -1,6 +1,16 @@
 # Cassiopee
 TM4C1294 Gateway
 
+## CR 03 (19/02-04/03)
+
+#### Tâche Réaliséés
+- Réalisation de la liaison Bluetooth
+- Enregistration des données dans EEPROM
+
+
+#### Tâche à venir
+- Echange des données via TCP sur la carte
+
 
 
 ## CR 02 (05/02-18/02)
