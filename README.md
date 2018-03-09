@@ -6,10 +6,13 @@ TM4C1294 Gateway
 #### Tâche Réaliséés
 - Réalisation de la liaison Bluetooth
 - Enregistration des données dans EEPROM
+- Echange des données via TCP entre le portable(comme le client) et le PC
 
 
 #### Tâche à venir
 - Echange des données via TCP sur la carte
+- Amélioration de Layout d'app
+- Etude de possibilité d'obtenir les données via HTTP
 
 
 
