@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 #include "inc/hw_ints.h"
 #include "inc/hw_memmap.h"
 #include "driverlib/debug.h"
@@ -13,6 +15,7 @@
 #include "driverlib/rom_map.h"
 #include "driverlib/sysctl.h"
 #include "driverlib/uart.h"
+#include "driverlib/eeprom.h"
 #include "utils/uartstdio.h"
 
 //*****************************************************************************
@@ -35,6 +38,11 @@ __error__(char *pcFilename, uint32_t ui32Line)
 }
 #endif
 
+int flagMode = 0;
+int flagcmd = 0;
+uint32_t eepromAddr = 0;
+char BL_cmd_receive[100];
+
 
 //*****************************************************************************
 //
@@ -56,32 +64,49 @@ BTIntHandler(void)
     //
     ROM_UARTIntClear(UART7_BASE, ui32Status);
 
+    int var = 0;
+    char bufferBLReceive[100];
+    int i = 0;
+    for (i = 0; i < 100; ++i) {
+        bufferBLReceive[i]=0;
+    }
     //
     // Loop while there are characters in the receive FIFO.
     //
-    while(ROM_UARTCharsAvail(UART7_BASE))
+    while(UARTCharsAvail(UART7_BASE))
     {
         //
         // Read the next character from the UART and write it back to the UART0.
         //
-        ROM_UARTCharPutNonBlocking(UART0_BASE,
-                                   ROM_UARTCharGetNonBlocking(UART7_BASE));
-
-        //
-        // Blink the LED to show a character transfer is occurring.
-        //
-        GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_0, GPIO_PIN_0);
-
-        //
-        // Delay for 1 millisecond.  Each SysCtlDelay is about 3 clocks.
-        //
-        SysCtlDelay(g_ui32SysClock / (1000 * 3));
-
-        //
-        // Turn off the LED
-        //
-        GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_0, 0);
+//        ROM_UARTCharPutNonBlocking(UART0_BASE,
+//                                   ROM_UARTCharGetNonBlocking(UART7_BASE));
+        bufferBLReceive[var]=ROM_UARTCharGet(UART7_BASE);
+        ROM_UARTCharPut(UART0_BASE,bufferBLReceive[var]);
+        var++;
     }
+    if (flagMode == 1) {
+        bufferBLReceive[var] = '\0';
+        uint32_t data = atoi(bufferBLReceive);
+        if(eepromAddr == 4294967295) {
+            eepromAddr = 0;
+        }
+        EEPROMProgram(&data,eepromAddr+4,4);
+        eepromAddr+=4;
+        EEPROMProgram(&eepromAddr, 0, 4);
+
+        uint32_t temp;
+        EEPROMRead(&temp,eepromAddr,4);
+        UARTprintf("%d ",temp);
+    } else {
+        bufferBLReceive[var] = '\0';
+        if(strstr(bufferBLReceive,"OK")){
+            flagcmd = 1;
+            UARTprintf("YES!\n");
+        }
+    }
+
+
+
 }
 
 //*****************************************************************************
@@ -100,11 +125,11 @@ UARTSend(char *pui8Buffer, uint32_t ui32Count)
         //
         // Write the next character to the UART.
         //
-        ROM_UARTCharPutNonBlocking(UART7_BASE, *pui8Buffer++);
+        ROM_UARTCharPut(UART7_BASE, *pui8Buffer++);
 
     }
-    ROM_UARTCharPutNonBlocking(UART7_BASE, '\r');
-    ROM_UARTCharPutNonBlocking(UART7_BASE, '\n');
+    ROM_UARTCharPut(UART7_BASE, '\r');
+    ROM_UARTCharPut(UART7_BASE, '\n');
 }
 
 
@@ -217,7 +242,7 @@ main(void)
     ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOC);
 
     //
-    // Enable the GPIO pins for the KEY (PC7).
+    // Enable the GPIO pins for the VCC (PC7).
     //
     ROM_GPIOPinTypeGPIOOutput(GPIO_PORTC_BASE, GPIO_PIN_7);
 
@@ -254,33 +279,166 @@ main(void)
     ConfigureUART();
     ConfigureUARTBluetooth();
 
+    //
+    // Initialize eeprom
+    //
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_EEPROM0);
+    EEPROMInit();
+    //UARTprintf("%d\n",EEPROMSizeGet());
+    //UARTprintf("%d\n",EEPROMBlockCountGet());
+    EEPROMRead(&eepromAddr,0,4);
+    if(eepromAddr == 4294967295)
+    {
+        uint32_t zero = 0;
+        EEPROMProgram(&zero, 0, 4);
+        EEPROMRead(&eepromAddr,0,4);
+    }
+    UARTprintf("%d\n",eepromAddr);
 
     //
     // Hello!
     //
     UARTprintf("Hello, world!\n");
+    int var = 0;
+    for (var = 0; var < 1000; ++var) {
+        SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
+    }
 
-
+    flagMode = 0;
 
     //
     // We are finished.  Hang around flashing D1.
     //
+
+    int t = 1000;
+    char *BL_test = "AT";
+    UARTSend(BL_test, strlen(BL_test));
+    while(!flagcmd && t--){
+        SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
+    }
+    if(!flagcmd){
+        UARTSend(BL_test, strlen(BL_test));
+        t=1000;
+        while(!flagcmd && t--){
+           SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
+        }
+        if(!flagcmd){
+            UARTprintf("Error Connecting Bluetooth");
+        }
+    }
+    flagcmd = 0;
+
+    t=1000;
+    char *BL_role = "AT+ROLE=1";
+    UARTSend(BL_role, strlen(BL_role));
+    while(!flagcmd && t--){
+        SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
+    }
+    if(!flagcmd){
+        UARTSend(BL_role, strlen(BL_role));
+        t=1000;
+        while(!flagcmd && t--){
+           SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
+        }
+        if(!flagcmd){
+            UARTprintf("Error Connecting Bluetooth");
+        }
+    }
+    flagcmd = 0;
+
+    t=1000;
+    char* BL_CMODE = "AT+CMODE=0";
+    UARTSend(BL_CMODE, strlen(BL_CMODE));
+    while(!flagcmd && t--){
+        SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
+    }
+    if(!flagcmd){
+        UARTSend(BL_CMODE, strlen(BL_CMODE));
+        t=1000;
+        while(!flagcmd && t--){
+           SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
+        }
+        if(!flagcmd){
+            UARTprintf("Error Connecting Bluetooth");
+        }
+    }
+    flagcmd = 0;
+
+//    t=1000;
+//        char* BL_UART = "AT+UART=38400£¬0£¬0";
+//        UARTSend(BL_UART, strlen(BL_UART));
+//        while(!flagcmd && t--){
+//            SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
+//        }
+//        if(!flagcmd){
+//            UARTSend(BL_UART, strlen(BL_UART));
+//            t=1000;
+//            while(!flagcmd && t--){
+//               SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
+//            }
+//            if(!flagcmd){
+//                UARTprintf("Error Connecting Bluetooth");
+//            }
+//        }
+//        flagcmd = 0;
+
+    t=10000;
+    char* BL_BIND = "AT+BIND=2016,11,282119";
+    UARTSend(BL_BIND, strlen(BL_BIND));
+    while(!flagcmd && t--){
+        SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
+    }
+    if(!flagcmd){
+        UARTSend(BL_BIND, strlen(BL_BIND));
+        t=5000;
+        while(!flagcmd && t--){
+           SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
+        }
+        if(!flagcmd){
+            UARTprintf("Error Connecting Bluetooth");
+        }
+    }
+    flagcmd = 0;
+
+
+
+
     int a = 0;
     while(1)
     {
         char bufferReceive[100];
 
         if (UARTgets(bufferReceive, 100)) {
-            int var;
-            for (var = 0;  var < 100; var++) {
-                if(bufferReceive[var] == '\0'){
-                    break;
-                }
-            }
-            UARTSend(bufferReceive, var);
-            a=1-a;
-            LEDWrite(CLP_D1, a);
-        }
+            if(bufferReceive[0] == 'F'){
+                //
+                // Turn off the Bluetooth
+                //
+                GPIOPinWrite(GPIO_PORTC_BASE, GPIO_PIN_6, 0); // Key
+                GPIOPinWrite(GPIO_PORTC_BASE, GPIO_PIN_7, 0); // VCC
 
+                SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
+
+                //
+                // Enter the Nomal Mode
+                //
+                GPIOPinWrite(GPIO_PORTC_BASE, GPIO_PIN_7, GPIO_PIN_7); // VCC
+
+                ROM_UARTConfigSetExpClk(UART7_BASE, g_ui32SysClock, 38400,
+                                        (UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE |
+                                         UART_CONFIG_PAR_NONE));
+                flagMode = 1;
+            }
+            else {
+//                int var;
+//                for (var = 0;  var < 100; var++) {
+//                    if(bufferReceive[var] == '\0'){
+//                        break;
+//                    }
+//                }
+                //UARTprintf(bufferReceive);
+                UARTSend(bufferReceive, strlen(bufferReceive));
+                LEDWrite(CLP_D1, 1-a);
+            }
+        }
     }
 }
