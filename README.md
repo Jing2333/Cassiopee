@@ -1,15 +1,31 @@
 # Cassiopee
 TM4C1294 Gateway
 
+## CR 04 (05/03-11/03)
+
+#### Tâches Réalisées
+
+- Finalisation de la partie Bluetooth
+
+
+- Présentation de la liaison Bluetooth
+
+#### Tâches à venir
+
+- Revoir les livrables et les envoyer
+- Etablir un seveur TCP sur la carte TIVA
+
+
+
 ## CR 03 (19/02-04/03)
 
-#### Tâche Réaliséés
+#### Tâches Réalisées
 - Réalisation de la liaison Bluetooth
 - Enregistration des données dans EEPROM
 - Echange des données via TCP entre le portable(comme le client) et le PC
 
 
-#### Tâche à venir
+#### Tâches à venir
 - Echange des données via TCP sur la carte
 - Amélioration de Layout d'app
 - Etude de possibilité d'obtenir les données via HTTP
