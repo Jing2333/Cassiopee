@@ -63,8 +63,8 @@ public class tcpServerSender implements Runnable {
         private boolean isRun = true;
 
         ServerSocketThread(Socket socket){
-            this.socket = socket;
-            ip = socket.getInetAddress().toString();
+            this.socket = socket;            ip = socket.getInetAddress().toString();
+
 
             try {
                 socket.setSoTimeout(8000);

@@ -1,6 +1,19 @@
 # Cassiopee
 TM4C1294 Gateway
 
+## CR 03 (19/02-04/03)
+
+#### Tâche Réaliséés
+- Réalisation de la liaison Bluetooth
+- Enregistration des données dans EEPROM
+- Echange des données via TCP entre le portable(comme le client) et le PC
+
+
+#### Tâche à venir
+- Echange des données via TCP sur la carte
+- Amélioration de Layout d'app
+- Etude de possibilité d'obtenir les données via HTTP
+
 
 
 ## CR 02 (05/02-18/02)
@@ -10,7 +23,9 @@ TM4C1294 Gateway
 - Essaie avec le nouveau module HC05
 - Etude du protocole LWIP
 - Présentation d'un exemple sur LWIP
-- ​
+- Etude du protocole TCP
+- Etude d'utilisation des sockets
+- Début de programmation
 - Planning provisoire (Livrable1)
 - Description du projet (Livrable2)
 - Mini compte-rendu (Livrable3)
@@ -26,7 +41,8 @@ Muyao CHEN
 - Terminer la partie de Bluetooth
 
 Jing YE
-
+- Communication avec un Arduino par TCP/UDP
+- Etude de la réalisation de HTTP sur Android
 
 
 ## CR 01 (01/02 - 04/02)
