@@ -21,12 +21,12 @@ uint8_t tcp_server_recvbuf[TCP_SERVER_RX_BUFSIZE];
 //TCP Server send buffer
 const uint8_t *tcp_server_sendbuf="TCP Server send data\r\n";
 
-//TCP Server 测试全局状态标记变量
-//bit7:0,没有数据要发送;1,有数据要发送
-//bit6:0,没有收到数据;1,收到数据了.
-//bit5:0,没有客户端连接上;1,有客户端连接上了.
-//bit4~0:reserved
+
 uint8_t tcp_server_flag;
+
+uint8_t receive_flag = 0;
+uint8_t send_flag = 0;
+uint8_t connection_flag = 0;
 
 
 //TCP Server test
@@ -36,14 +36,7 @@ void tcp_server_test(void)
     struct tcp_pcb *tcppcbnew;      //定义一个TCP服务器控制块
     struct tcp_pcb *tcppcbconn;     //定义一个TCP服务器控制块
 
-    struct tcp_pcb *tcppcbtest;
-    tcppcbtest = tcp_new();
-    if(tcppcbtest){
-        err = tcp_bind(tcppcbtest,IP_ADDR_ANY,9999);
-    }
-
     uint8_t res=0;
-
     tcppcbnew=tcp_new();    //创建一个新的pcb
     if(tcppcbnew)           //创建成功
     {
@@ -54,27 +47,14 @@ void tcp_server_test(void)
             tcp_accept(tcppcbconn,tcp_server_accept);   //初始化LWIP的tcp_accept的回调函数
         }else res=1;
     }else res=1;
-    while(res==0)
-    {
-        if((tcp_server_flag&1<<6) != 0)//是否收到数据?
-        {
-            tcp_server_flag&=~(1<<6);//标记数据已经被处理了.
-            tcp_server_flag|=1<<7;//标记要发送数据
-            UARTprintf("%s",tcp_server_recvbuf);
 
-        }
-        if(tcp_server_flag&1<<5 != 0)//是否连接上?
-        {
-
-        }
-       // extern uint32_t g_ui32SysClock;
-       // SysCtlDelay(g_ui32SysClock*2/3000); //delay 2ms
+    if(res == 1){
+        tcp_server_connection_close(tcppcbnew,0);//关闭TCP Server连接
+        tcp_server_connection_close(tcppcbconn,0);//关闭TCP Server连接
+        memset(tcppcbnew,0,sizeof(struct tcp_pcb));
+        memset(tcppcbconn,0,sizeof(struct tcp_pcb));
     }
-    tcp_server_connection_close(tcppcbnew,0);//关闭TCP Server连接
-    tcp_server_connection_close(tcppcbconn,0);//关闭TCP Server连接
-//    tcp_server_remove_timewait();
-    memset(tcppcbnew,0,sizeof(struct tcp_pcb));
-    memset(tcppcbconn,0,sizeof(struct tcp_pcb));
+
 }
 
 //lwIP tcp_accept()的回调函数
@@ -98,7 +78,7 @@ err_t tcp_server_accept(void *arg,struct tcp_pcb *newpcb,err_t err)
         tcp_poll(newpcb,tcp_server_poll,1); //初始化tcp_poll回调函数
         tcp_sent(newpcb,tcp_server_sent);   //初始化发送回调函数
 
-        tcp_server_flag|=1<<5;              //标记有客户端连上了
+        //tcp_server_flag|=1<<5;              //标记有客户端连上了
 
         ret_err=ERR_OK;
     }else ret_err=ERR_MEM;
@@ -136,9 +116,12 @@ err_t tcp_server_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err
                 data_len += q->len;
                 if(data_len > TCP_SERVER_RX_BUFSIZE) break; //超出TCP客户端接收数组,跳出
             }
-            //UARTprintf("%s",tcp_server_recvbuf);
-//            tcp_server_senddata(tpcb, es);
-            tcp_server_flag|=1<<6;  //标记接收到数据了
+            UARTprintf("%s",tcp_server_recvbuf);
+
+            es->p=pbuf_alloc(PBUF_TRANSPORT,strlen((char*)tcp_server_sendbuf),PBUF_POOL);//申请内存
+            pbuf_take(es->p,(char*)tcp_server_sendbuf,strlen((char*)tcp_server_sendbuf));
+            tcp_server_senddata(tpcb,es);       //轮询的时候发送要发送的数据
+
             tcp_recved(tpcb,p->tot_len);//用于获取接收数据,通知LWIP可以获取更多数据
             pbuf_free(p);   //释放内存
             ret_err=ERR_OK;
@@ -159,28 +142,19 @@ void tcp_server_error(void *arg,err_t err)
     UARTprintf("tcp error:%x\r\n",(uint32_t)arg);
     if(arg!=NULL)mem_free(arg);//释放内存
 }
-//lwIP tcp_poll的回调函数
+
+// Non utilisé
 err_t tcp_server_poll(void *arg, struct tcp_pcb *tpcb)
 {
     err_t ret_err;
     struct tcp_server_struct *es;
     es=(struct tcp_server_struct *)arg;
-    //UARTprintf("I will send111!");
     if(es!=NULL)
     {
-       // UARTprintf("I will send222");
-        if(tcp_server_flag&(1<<7) != 0)  //判断是否有数据要发送
-        {
-            UARTprintf("I will send333!");
-            es->p=pbuf_alloc(PBUF_TRANSPORT,strlen((char*)tcp_server_sendbuf),PBUF_POOL);//申请内存
-            pbuf_take(es->p,(char*)tcp_server_sendbuf,strlen((char*)tcp_server_sendbuf));
-            tcp_server_senddata(tpcb,es);       //轮询的时候发送要发送的数据
-            tcp_server_flag&=~(1<<7);           //清除数据发送标志位
-            if(es->p!=NULL)pbuf_free(es->p);    //释放内存
-        }else if(es->state==ES_TCPSERVER_CLOSING)//需要关闭连接?执行关闭操作
-        {
-            tcp_server_connection_close(tpcb,es);//关闭连接
-        }
+        if(es->state==ES_TCPSERVER_CLOSING)//需要关闭连接?执行关闭操作
+            {
+                tcp_server_connection_close(tpcb,es);//关闭连接
+            }
         ret_err=ERR_OK;
     }else
     {
@@ -189,7 +163,8 @@ err_t tcp_server_poll(void *arg, struct tcp_pcb *tpcb)
     }
     return ret_err;
 }
-//lwIP tcp_sent的回调函数(当从远端主机接收到ACK信号后发送数据)
+
+
 err_t tcp_server_sent(void *arg, struct tcp_pcb *tpcb, uint16_t len)
 {
     struct tcp_server_struct *es;
@@ -198,7 +173,8 @@ err_t tcp_server_sent(void *arg, struct tcp_pcb *tpcb, uint16_t len)
     if(es->p)tcp_server_senddata(tpcb,es);//发送数据
     return ERR_OK;
 }
-//此函数用来发送数据
+
+
 void tcp_server_senddata(struct tcp_pcb *tpcb, struct tcp_server_struct *es)
 {
     struct pbuf *ptr;
@@ -228,30 +204,4 @@ void tcp_server_connection_close(struct tcp_pcb *tpcb, struct tcp_server_struct 
     tcp_err(tpcb,NULL);
     tcp_poll(tpcb,NULL,0);
     if(es)mem_free(es);
-    tcp_server_flag&=~(1<<5);//标记连接断开了
 }
-//extern void tcp_pcb_purge(struct tcp_pcb *pcb); //在 tcp.c里面
-//extern struct tcp_pcb *tcp_active_pcbs;         //在 tcp.c里面
-//extern struct tcp_pcb *tcp_tw_pcbs;             //在 tcp.c里面
-//强制删除TCP Server主动断开时的time wait
-//void tcp_server_remove_timewait(void)
-//{
-//    struct tcp_pcb *pcb,*pcb2;
-//    uint8_t t=0;
-//    while(tcp_active_pcbs!=NULL&&t<200)
-//    {
-//        lwip_periodic_handle(); //继续轮询
-//        lwip_pkt_handle();
-//        t++;
-//        delay_ms(10);           //等待tcp_active_pcbs为空
-//    }
-//    pcb=tcp_tw_pcbs;
-//    while(pcb!=NULL)//如果有等待状态的pcbs
-//    {
-//        tcp_pcb_purge(pcb);
-//        tcp_tw_pcbs=pcb->next;
-//        pcb2=pcb;
-//        pcb=pcb->next;
-//        memp_free(MEMP_TCP_PCB,pcb2);
-//    }
-//}

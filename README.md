@@ -1,6 +1,41 @@
 # Cassiopee
 TM4C1294 Gateway
 
+
+
+## CR 07-08 (26/03-08/04)
+
+Pas d'avancement car la semaine de Projet Challenge d'Endreprendre et les CFs qui suivent.
+
+
+
+## CR 06 (19/03-25/03)
+
+#### Tâches Réalisées
+
+- Partie Hardware **BLOQUE**
+  - Serveur + client nécessite plusieurs Threads, difficile à réaliser en utilisant LWIP RAW
+  - Manque de tutoriaux de la part de RTOS
+
+#### Tâches à venir
+
+- Partie Hardware : Trouver une solution...
+
+
+
+## CR 05 (12/03-18/03)
+
+#### Tâches Réalisées
+
+- Soumission du Livrable 1
+- Etablissement d'un serveur TCP sur la carte TIVA
+
+#### Tâches à venir
+
+- Voir la possibilité d'établir plusieurs connexions (serveur+client)
+
+
+
 ## CR 04 (05/03-11/03)
 
 #### Tâches Réalisées
