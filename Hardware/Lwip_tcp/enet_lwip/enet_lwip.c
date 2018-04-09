@@ -325,7 +325,7 @@ main(void)
     // Initialize the lwIP library, using DHCP.
     //
     lwIPInit(g_ui32SysClock, pui8MACArray, 0, 0, 0, IPADDR_USE_DHCP);
-
+    //lwIPInit(g_ui32SysClock, pui8MACArray, 0xC0A80164, 0xFFFFFF00, 0xC0A80101, IPADDR_USE_STATIC);
     //
     // Setup the device locator service.
     //

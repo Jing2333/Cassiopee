@@ -45,8 +45,10 @@ enet_lwip.obj: C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/include/linkage.
 enet_lwip.obj: C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/include/abi_prefix.h
 enet_lwip.obj: C:/ti/TivaWare_C_Series-2.1.3.156/utils/uartstdio.h
 enet_lwip.obj: C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/include/stdarg.h
+enet_lwip.obj: C:/ti/TivaWare_C_Series-2.1.3.156/third_party/lwip-1.4.1/apps/httpserver_raw/httpd.h
 enet_lwip.obj: C:/ti/TivaWare_C_Series-2.1.3.156/examples/boards/ek-tm4c1294xl/drivers/pinout.h
 enet_lwip.obj: ../tcp_server.h
+enet_lwip.obj: ../utils/udp_server.h
 
 ../enet_lwip.c: 
 C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/include/stdbool.h: 
@@ -93,5 +95,7 @@ C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/include/linkage.h:
 C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/include/abi_prefix.h: 
 C:/ti/TivaWare_C_Series-2.1.3.156/utils/uartstdio.h: 
 C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/include/stdarg.h: 
+C:/ti/TivaWare_C_Series-2.1.3.156/third_party/lwip-1.4.1/apps/httpserver_raw/httpd.h: 
 C:/ti/TivaWare_C_Series-2.1.3.156/examples/boards/ek-tm4c1294xl/drivers/pinout.h: 
 ../tcp_server.h: 
+../utils/udp_server.h: 

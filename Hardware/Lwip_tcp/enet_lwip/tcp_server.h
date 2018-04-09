@@ -8,6 +8,7 @@
 #ifndef TCP_SERVER_H_
 #define TCP_SERVER_H_
 
+#include <stdint.h>
 #include "lwip/opt.h"
 #include "lwip/err.h"
 #include "lwip/pbuf.h"
@@ -16,7 +17,6 @@
 #include "lwip/tcp.h"
 #include "lwip/memp.h"
 #include "lwip/mem.h"
-#include "lwip_comm.h"
 //////////////////////////////////////////////////////////////////////////////////
 
 #define TCP_SERVER_RX_BUFSIZE   2000    //定义tcp server最大接收数据长度
@@ -32,7 +32,7 @@ enum tcp_server_states
 //LWIP回调函数使用的结构体
 struct tcp_server_struct
 {
-    u8 state;               //当前连接状
+    uint8_t state;               //当前连接状
     struct tcp_pcb *pcb;    //指向当前的pcb
     struct pbuf *p;         //指向接收/或传输的pbuf
 };
