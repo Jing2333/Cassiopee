@@ -16,6 +16,7 @@
 #include "driverlib/sysctl.h"
 #include "driverlib/uart.h"
 #include "driverlib/eeprom.h"
+#include "driverlib/flash.h"
 #include "utils/uartstdio.h"
 
 //*****************************************************************************
@@ -40,9 +41,9 @@ __error__(char *pcFilename, uint32_t ui32Line)
 
 int flagMode = 0;
 int flagcmd = 0;
+int BL_id = 0;
 uint32_t eepromAddr = 0;
 char BL_cmd_receive[100];
-
 
 
 
@@ -86,6 +87,7 @@ BTIntHandler(void)
         ROM_UARTCharPut(UART0_BASE,bufferBLReceive[var]);
         var++;
     }
+
     if (flagMode == 1) {
         bufferBLReceive[var] = '\0';
         uint32_t data = atoi(bufferBLReceive);
@@ -99,6 +101,7 @@ BTIntHandler(void)
         uint32_t temp;
         EEPROMRead(&temp,eepromAddr,4);
         UARTprintf("%d ",temp);
+
     } else {
         bufferBLReceive[var] = '\0';
         if(strstr(bufferBLReceive,"OK")){
@@ -280,6 +283,7 @@ main(void)
     //
     ConfigureUART();
     ConfigureUARTBluetooth();
+
 
     //
     // Initialize eeprom
