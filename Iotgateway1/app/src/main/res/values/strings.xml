@@ -1,3 +1,12 @@
 <resources>
-    <string name="app_name">Iotgateway1</string>
+    <string name="app_name">Iotgateway</string>
+    <string name="export">Export</string>
+    <string name="chart">Chart</string>
+    <string name="delete">Delete All</string>
+    <string name="mainimage">mainimage</string>
+    <string name="light_control">Light Control</string>
+    <string name="temperature_humidity_detection">Temperature Humidity Detection</string>
+    <string name="temperature">Temperature</string>
+    <string name="connect">Connect</string>
+    <string name="humidity">Humidity</string>
 </resources>

@@ -8,8 +8,14 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name=".TemperatureDetection"></activity>
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        <activity android:name=".TemperatureDetection"
+            android:label="Detection">
+
+        </activity>
+        <activity android:name=".TemperatureHistory"></activity>
+        <activity android:name=".HumidityHistory"></activity>
+        <activity android:name=".LightControl"></activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -19,4 +25,6 @@
         </activity>
     </application>
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 </manifest>

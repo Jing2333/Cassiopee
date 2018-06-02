@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context="com.example.yejing.iotgateway1.HumidityHistory">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="491dp"
+            android:orientation="vertical"
+            android:backgroundTint="#fffab3"
+            android:id="@+id/linearLayout">
+
+            <ListView
+                android:id="@+id/data_list2"
+                android:layout_width="fill_parent"
+                android:layout_height="0dip"
+                android:layout_weight="0.81"
+                android:cacheColorHint="@null"
+                android:divider="#e4e4e4"
+                android:dividerHeight="0.5dp"
+                android:listSelector="@android:color/transparent" />
+            <!--android:fadingEdge="@null" -->
+
+        </LinearLayout>
+
+
+    </RelativeLayout>
+</LinearLayout>
