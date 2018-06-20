@@ -90,7 +90,7 @@ public class tcpClientSender implements Runnable {
                 Intent intent =new Intent();
                 intent.setAction("tcpClientReceiver");
                 intent.putExtra("tcpClientReceiver",textReceived);
-                TemperatureDetection.context.sendBroadcast(intent);
+                TemHumDetection.context.sendBroadcast(intent);
                 if (textReceived.equals("QuitClient")){
                     isRun = false;
                 }

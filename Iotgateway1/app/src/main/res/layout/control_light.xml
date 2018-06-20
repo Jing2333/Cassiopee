@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:Switchbutton="http://schemas.android.com/apk/res-auto">
+
+    <RelativeLayout
+        android:id="@+id/layoutControl"
+        android:layout_width="match_parent"
+        android:layout_height="60dp">
+
+        <!--<Button-->
+            <!--android:id="@+id/btnOnTCPCL"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_alignParentStart="true"-->
+            <!--android:text="ON" />-->
+
+        <!--<Button-->
+            <!--android:id="@+id/btnOffTCPCL"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_alignParentEnd="true"-->
+            <!--android:text="OFF" />-->
+
+    </RelativeLayout>
+
+    <com.suke.widget.SwitchButton
+        android:id="@+id/switch_button"
+        android:layout_width="250dp"
+        android:layout_height="150dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        Switchbutton:sb_checked_color="@color/colorPrimary"
+     />
+
+</RelativeLayout>

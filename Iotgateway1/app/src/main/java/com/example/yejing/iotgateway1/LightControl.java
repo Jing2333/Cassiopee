@@ -8,11 +8,9 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import com.suke.widget.SwitchButton;
 
 import java.lang.ref.WeakReference;
 import java.util.concurrent.ExecutorService;
@@ -22,62 +20,72 @@ import java.util.concurrent.Executors;
  * Created by YE Jing on 2018/3/3.
  */
 
-public class TemperatureDetection extends Activity {
+public class LightControl extends Activity {
     public static Context context;
     private MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
-    private MyHandler myHandler = new MyHandler(this);
-    public String targetIpAddress, sPort;
+    public String targetIpAddress;
     public int targetPort;
-    private TextView communication;
+
     final tcpClientSender mTCPCL = new tcpClientSender();
     ExecutorService exec = Executors.newCachedThreadPool();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.temperature);
+        setContentView(R.layout.control_light);
         context = this;
         BindReceiver();
-        targetIpAddress = "192.168.109.88";
-        targetPort = 8888;
+        targetIpAddress = "192.168.1.111";
+        targetPort = 6666;
         mTCPCL.setIpAddress(targetIpAddress);
         mTCPCL.setTargetPort(targetPort);
-        final Button btnSend =  findViewById(R.id.btnSendTCPCL);
-        communication = findViewById(R.id.communicationTCPCL);
-        final EditText inputText =  findViewById(R.id.editTextSendTCPCL) ;
+        final SwitchButton switchButton = findViewById(R.id.switch_button);
 
-        sPort = Integer.toString(targetPort);
-
-        communication.append("\r\n Connected to ");
-        communication.append(targetIpAddress);
-        communication.append(" : ");
-        communication.append(sPort);
 
         exec.execute(mTCPCL);
 
 
-        btnSend.setOnClickListener(new View.OnClickListener() {
+        switchButton.setChecked(false);
+        switchButton.isChecked();
+        switchButton.toggle();     //switch state
+        switchButton.toggle(true);//switch with animation
+        switchButton.setShadowEffect(true);//enable shadow effect
+        switchButton.setEnabled(true);//enable button
+        switchButton.setEnableEffect(true);//enable the switch animation
+        switchButton.setOnCheckedChangeListener(new SwitchButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View view) {
-
-                communication.append("\r\n Message sent ");
-                communication.append(": ");
-                mTCPCL.setTextToBeSent(inputText.getText().toString());
-                exec.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        mTCPCL.send();
-                    }
-                });
-                communication.append(inputText.getText().toString());
+            public void onCheckedChanged(SwitchButton view, boolean isChecked) {
+                if (isChecked) {
+                    mTCPCL.setTextToBeSent("1");
+                    exec.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            mTCPCL.send();
+                        }
+                    });
+                    Toast.makeText(getApplicationContext(), "Light On", Toast.LENGTH_SHORT).show();
+                } else {
+                    mTCPCL.setTextToBeSent("0");
+                    exec.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            mTCPCL.send();
+                        }
+                    });
+                    Toast.makeText(getApplicationContext(), "Light Off", Toast.LENGTH_SHORT).show();
+                }
             }
         });
+
     }
 
     protected void onStop() {
+        unregisterReceiver(myBroadcastReceiver);
         super.onStop();
         mTCPCL.closeSelf();
     }
+
 
     private void BindReceiver() {
         IntentFilter intentFilter = new IntentFilter("tcpClientReceiver");
@@ -95,7 +103,7 @@ public class TemperatureDetection extends Activity {
                     //communication.append(msg);
                     Message message = new Message();
                     message.obj = msg;
-                    myHandler.sendMessage(message);
+//                    myHandler.sendMessage(message);
                     //Log.d(TAG, "onReceive: receive!");
                     Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
                     break;
@@ -104,21 +112,11 @@ public class TemperatureDetection extends Activity {
     }
 
     private class MyHandler extends Handler {
-        private final WeakReference<TemperatureDetection> mActivity;
+        private final WeakReference<TemHumDetection> mActivity;
 
-        public MyHandler(TemperatureDetection activity) {
-            mActivity = new WeakReference<TemperatureDetection>(activity);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            TemperatureDetection activity = mActivity.get();
-            if (null != activity) {
-                String str = msg.obj.toString();
-                communication.append("\r\n Message received : ");
-                communication.append(str);
-
-            }
+        public MyHandler(TemHumDetection activity) {
+            mActivity = new WeakReference<TemHumDetection>(activity);
         }
     }
 }
+
