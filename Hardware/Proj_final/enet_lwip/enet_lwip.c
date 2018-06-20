@@ -1,79 +1,50 @@
 //*****************************************************************************
-//
-// enet_lwip.c - Sample WebServer Application using lwIP.
-//
-// Copyright (c) 2013-2016 Texas Instruments Incorporated.  All rights reserved.
-// Software License Agreement
-// 
-// Texas Instruments (TI) is supplying this software for use solely and
-// exclusively on TI's microcontroller products. The software is owned by
-// TI and/or its suppliers, and is protected under applicable copyright
-// laws. You may not combine this software with "viral" open-source
-// software in order to form a larger program.
-// 
-// THIS SOFTWARE IS PROVIDED "AS IS" AND WITH ALL FAULTS.
-// NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT
-// NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. TI SHALL NOT, UNDER ANY
-// CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR CONSEQUENTIAL
-// DAMAGES, FOR ANY REASON WHATSOEVER.
-// 
-// This is part of revision 2.1.3.156 of the EK-TM4C1294XL Firmware Package.
-//
+// IoT Gateway
+// Author : CHEN Muyao
+// 06/06/2018
 //*****************************************************************************
 
+// Standard Libraries
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
 
+// Hardware Libraries
 #include "inc/hw_types.h"
 #include "inc/hw_ints.h"
 #include "inc/hw_memmap.h"
+
+// Driver Libraries
 #include "driverlib/flash.h"
 #include "driverlib/interrupt.h"
 #include "driverlib/gpio.h"
 #include "driverlib/rom_map.h"
 #include "driverlib/sysctl.h"
 #include "driverlib/systick.h"
-
 #include "driverlib/debug.h"
 #include "driverlib/pin_map.h"
 #include "driverlib/rom.h"
 #include "driverlib/uart.h"
 #include "driverlib/eeprom.h"
 #include "driverlib/flash.h"
+#include "drivers/pinout.h"
 
+// Libraries used by LwIP
 #include "utils/locator.h"
 #include "utils/lwiplib.h"
 #include "utils/ustdlib.h"
 #include "utils/uartstdio.h"
-#include "httpserver_raw/httpd.h"
-#include "drivers/pinout.h"
+
+// TCP Serever Library
 #include "tcp_server.h"
 
 
 
 //*****************************************************************************
 //
-//! \addtogroup example_list
-//! <h1>Ethernet with lwIP (enet_lwip)</h1>
-//!
-//! This example application demonstrates the operation of the Tiva
-//! Ethernet controller using the lwIP TCP/IP Stack.  DHCP is used to obtain
-//! an Ethernet address.  If DHCP times out without obtaining an address,
-//! AutoIP will be used to obtain a link-local address.  The address that is
-//! selected will be shown on the UART.
-//!
-//! UART0, connected to the ICDI virtual COM port and running at 115,200,
-//! 8-N-1, is used to display messages from this application. Use the
-//! following command to re-build the any file system files that change.
-//!
-//!     ../../../../tools/bin/makefsfile -i fs -o enet_fsdata.h -r -h -q
-//!
-//! For additional details on lwIP, refer to the lwIP web page at:
-//! http://savannah.nongnu.org/projects/lwip/
+// Define for maximum acceptable bluetooth devices
 //
 //*****************************************************************************
 
@@ -122,18 +93,51 @@ __error__(char *pcFilename, uint32_t ui32Line)
 }
 #endif
 
-int lock = 0; //if lock == 0, Data enregistre, if lock == 1, data ignore
+
+//*****************************************************************************
+//
+// Declarartion of variables
+//
+//*****************************************************************************
+
+//
+// ID of the Bluetooth device being connected
+//
 int BLInService = 0;
 
+//
+// Flag distinguishing the AT Mode(0) and the Transmission Mode(1)
+//
 int flagMode = 0;
+
+//
+// Flag checking the received command OK
+//
 int flagcmd = 0;
+
+//
+// Current eeprom address
+//
 uint32_t eepromAddr = 0;
+
+//
+// Buffer for incoming bluetooth command
+//
 char BL_cmd_receive[100];
+
+//
+// Bluetooth device structure
+//
 struct Bluetooth{
     int id;
     char addr[20];
 };
+
+//
+// List of Bluetooth devices
+//
 struct Bluetooth Bluetooth_list[MAX_BLUETOOTH_DEVICE];
+
 
 //*****************************************************************************
 //
@@ -167,43 +171,65 @@ BTIntHandler(void)
     while(UARTCharsAvail(UART7_BASE))
     {
         //
-        // Read the next character from the UART and write it back to the UART0.
+        // Read the next character from the UART and write it into Bluetooth receive buffer.
         //
-//        ROM_UARTCharPutNonBlocking(UART0_BASE,
-//                                   ROM_UARTCharGetNonBlocking(UART7_BASE));
         bufferBLReceive[var]=ROM_UARTCharGet(UART7_BASE);
         ROM_UARTCharPut(UART0_BASE,bufferBLReceive[var]);
         var++;
     }
 
+    //
+    // Processing the response from Bluetooth Device
+    //
+
+    //
+    // if Bluetooth is in Transmission Mode
+    //
     if (flagMode == 1) {
+
+        //
+        // transfer the buffer into a string type
+        //
         bufferBLReceive[var] = '\0';
-//        uint32_t data = atoi(bufferBLReceive);
+
+        //
+        // transfer the received string into integer
+        //
         unsigned char *p = (void *)bufferBLReceive;
         uint32_t data = p[0] + 256U*p[1] + 65536U*p[2] + 16777216U*p[3];
-        EEPROMRead(&eepromAddr,0,4);
-        if(eepromAddr == 4294967295) {
+
+        //
+        // Save the received data in the EEPROM
+        //
+        EEPROMRead(&eepromAddr,0,4);    // Find the current eeprom address
+        if(eepromAddr == 4294967295) {  // If overflow, begin from the 0 address
             eepromAddr = 0;
         }
-        EEPROMProgram(&BLInService,eepromAddr+4,4);
+        EEPROMProgram(&BLInService,eepromAddr+4,4); // Save the current device ID being interrogated
         eepromAddr+=4;
-        EEPROMProgram(&data,eepromAddr+4,4);
+        EEPROMProgram(&data,eepromAddr+4,4);        // Save the Integer into the next address
         eepromAddr+=4;
-        EEPROMProgram(&eepromAddr, 0, 4);
+        EEPROMProgram(&eepromAddr, 0, 4);           // Update the current address
 
+        //
+        // Display the data information on the screen (for debugging)
+        //
         uint32_t temp;
         EEPROMRead(&temp,eepromAddr,4);
         UARTprintf("%d ",temp);
-        //UARTprintf("%s ",bufferBLReceive);
 
+        //
+        // if Bluetooth is in AT Mode (Configuring the bluetooth)
+        //
     } else {
         bufferBLReceive[var] = '\0';
         if(strstr(bufferBLReceive,"OK")){
             flagcmd = 1;
-            UARTprintf("YES!\n");
+            UARTprintf("Command sending success!\n");
         }
     }
 }
+
 
 //*****************************************************************************
 //
@@ -227,6 +253,7 @@ UARTSend(char *pui8Buffer, uint32_t ui32Count)
     ROM_UARTCharPut(UART7_BASE, '\r');
     ROM_UARTCharPut(UART7_BASE, '\n');
 }
+
 
 //*****************************************************************************
 //
@@ -259,6 +286,11 @@ ConfigureUART(void)
     UARTStdioConfig(0, 115200, g_ui32SysClock);
 }
 
+//*****************************************************************************
+//
+// Configure the UART for Bluetooth module
+//
+//*****************************************************************************
 void
 ConfigureUARTBluetooth(void)
 {
@@ -299,8 +331,6 @@ ConfigureUARTBluetooth(void)
     ROM_UARTIntEnable(UART7_BASE, UART_INT_RX | UART_INT_RT);
 
 }
-
-
 
 //*****************************************************************************
 //
@@ -369,7 +399,7 @@ lwIPHostTimerHandler(void)
             //
             UARTprintf("IP Address: ");
             DisplayIPAddress(ui32NewIPAddress);
-            UARTprintf("\nOpen a browser and enter the IP address.\n");
+            UARTprintf("\nWaiting for connection...\n");
         }
 
         //
@@ -422,162 +452,173 @@ SysTickIntHandler(void)
 }
 
 
-void addBluetooth(int id,char* addr,int size){
+//*****************************************************************************
+//
+// Add Bluetooth device into the device list
+//
+//*****************************************************************************
+void
+addBluetooth(int id,char* addr,int size){
     strncpy(Bluetooth_list[id-1].addr,addr,size);
     Bluetooth_list[id-1].id = id;
 }
 
-int consultBluetooth(int id){
+//*****************************************************************************
+//
+// Configure the Bluetooth module to connect with different bluetooth devices
+// If configuration succeeds return 1
+//
+//*****************************************************************************
+int
+consultBluetooth(int id){
 
     //
-        // Turn off the Bluetooth
-        //
-        GPIOPinWrite(GPIO_PORTC_BASE, GPIO_PIN_6, 0); // Key
-        GPIOPinWrite(GPIO_PORTC_BASE, GPIO_PIN_7, 0); // VCC
+    // Turn off the Bluetooth
+    //
+    GPIOPinWrite(GPIO_PORTC_BASE, GPIO_PIN_6, 0); // Key
+    GPIOPinWrite(GPIO_PORTC_BASE, GPIO_PIN_7, 0); // VCC
 
-        SysCtlDelay(g_ui32SysClock / (100 * 3)); // delay 10ms
+    SysCtlDelay(g_ui32SysClock / (100 * 3)); // delay 10ms
 
-        flagMode = 0;
+    flagMode = 0;
 
-        //
-        // Enter the AT Mode
-        //
-        GPIOPinWrite(GPIO_PORTC_BASE, GPIO_PIN_6, GPIO_PIN_6);
+    //
+    // Enter the AT Mode
+    //
+    GPIOPinWrite(GPIO_PORTC_BASE, GPIO_PIN_6, GPIO_PIN_6);
+    SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
+    GPIOPinWrite(GPIO_PORTC_BASE, GPIO_PIN_7, GPIO_PIN_7); // VCC
+
+    int t = 1000;
+    char *BL_test = "AT";
+    UARTSend(BL_test, strlen(BL_test));
+    while(!flagcmd && t--){
         SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
-        GPIOPinWrite(GPIO_PORTC_BASE, GPIO_PIN_7, GPIO_PIN_7); // VCC
-
-        int t = 1000;
-        char *BL_test = "AT";
+    }
+    if(!flagcmd){
         UARTSend(BL_test, strlen(BL_test));
-        while(!flagcmd && t--){
-            SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
-        }
-        if(!flagcmd){
-            UARTSend(BL_test, strlen(BL_test));
-            t=1000;
-            while(!flagcmd && t--){
-               SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
-            }
-            if(!flagcmd){
-                UARTprintf("Error Connecting Bluetooth1");
-                return NULL;
-            }
-        }
-        flagcmd = 0;
-
         t=1000;
-        char *BL_role = "AT+ROLE=1";
-        UARTSend(BL_role, strlen(BL_role));
         while(!flagcmd && t--){
-            SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
+           SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
         }
         if(!flagcmd){
-            UARTSend(BL_role, strlen(BL_role));
-            t=1000;
-            while(!flagcmd && t--){
-                SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
-            }
-            if(!flagcmd){
-                UARTprintf("Error Connecting Bluetooth2");
-                return NULL;
-            }
+            UARTprintf("Error Sending AT");
+            return NULL;
         }
-        flagcmd = 0;
+    }
+    flagcmd = 0;
 
-        t=1000;
-        char* BL_CMODE = "AT+CMODE=0";
-        UARTSend(BL_CMODE, strlen(BL_CMODE));
-        while(!flagcmd && t--){
-            SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
-        }
-        if(!flagcmd){
-            UARTSend(BL_CMODE, strlen(BL_CMODE));
-            t=1000;
-            while(!flagcmd && t--){
-               SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
-            }
-            if(!flagcmd){
-                UARTprintf("Error Connecting Bluetooth3");
-                return NULL;
-            }
-        }
-        flagcmd = 0;
-
-        t=1000;
-        char* BL_RMAAD = "AT+RMAAD";
-        UARTSend(BL_RMAAD, strlen(BL_RMAAD));
-        while(!flagcmd && t--){
-            SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
-        }
-        if(!flagcmd){
-            UARTSend(BL_RMAAD, strlen(BL_RMAAD));
-            t=1000;
-            while(!flagcmd && t--){
-               SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
-            }
-            if(!flagcmd){
-                UARTprintf("Error Connecting Bluetooth3.5");
-                return NULL;
-            }
-        }
-        flagcmd = 0;
-
-        t=10000;
-        char BL_BIND[25];
-        memcpy(BL_BIND, "AT+BIND=", 9*sizeof(char));
-        UARTprintf("\n");
-        UARTprintf(BL_BIND);
-        UARTprintf("\n");
-        UARTprintf("\n");
-        UARTprintf(Bluetooth_list[id-1].addr);
-        UARTprintf("\n");
-        strcat(BL_BIND, Bluetooth_list[id-1].addr);
-        UARTprintf("\n");
-        UARTprintf(BL_BIND);
-        UARTprintf("\n");
-        //char* BL_BIND = "AT+BIND=2016,11,282119";
-        UARTSend(BL_BIND, strlen(BL_BIND));
-        while(!flagcmd && t--){
-            SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
-        }
-        if(!flagcmd){
-            UARTSend(BL_BIND, strlen(BL_BIND));
-            t=5000;
-            while(!flagcmd && t--){
-               SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
-            }
-            if(!flagcmd){
-                UARTprintf("Error Connecting Bluetooth4");
-                return NULL;
-            }
-        }
-        flagcmd = 0;
-        //
-        // Turn off the Bluetooth
-        //
-        GPIOPinWrite(GPIO_PORTC_BASE, GPIO_PIN_6, 0); // Key
-        GPIOPinWrite(GPIO_PORTC_BASE, GPIO_PIN_7, 0); // VCC
-
+    t=1000;
+    char *BL_role = "AT+ROLE=1";
+    UARTSend(BL_role, strlen(BL_role));
+    while(!flagcmd && t--){
         SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
+    }
+    if(!flagcmd){
+        UARTSend(BL_role, strlen(BL_role));
+        t=1000;
+        while(!flagcmd && t--){
+            SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
+        }
+        if(!flagcmd){
+            UARTprintf("Error Configuring AT ROLE");
+            return NULL;
+        }
+    }
+    flagcmd = 0;
 
-        //
-        // Enter the Nomal Mode
-        //
-        GPIOPinWrite(GPIO_PORTC_BASE, GPIO_PIN_7, GPIO_PIN_7); // VCC
+    t=1000;
+    char* BL_CMODE = "AT+CMODE=0";
+    UARTSend(BL_CMODE, strlen(BL_CMODE));
+    while(!flagcmd && t--){
+        SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
+    }
+    if(!flagcmd){
+        UARTSend(BL_CMODE, strlen(BL_CMODE));
+        t=1000;
+        while(!flagcmd && t--){
+           SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
+        }
+        if(!flagcmd){
+            UARTprintf("Error Configuring AT CMODE");
+            return NULL;
+        }
+    }
+    flagcmd = 0;
 
-        ROM_UARTConfigSetExpClk(UART7_BASE, g_ui32SysClock, 38400,
-                                (UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE |
-                                 UART_CONFIG_PAR_NONE));
-        flagMode = 1;
-        BLInService = id;
-        return 1;
+    t=1000;
+    char* BL_RMAAD = "AT+RMAAD";
+    UARTSend(BL_RMAAD, strlen(BL_RMAAD));
+    while(!flagcmd && t--){
+        SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
+    }
+    if(!flagcmd){
+        UARTSend(BL_RMAAD, strlen(BL_RMAAD));
+        t=1000;
+        while(!flagcmd && t--){
+           SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
+        }
+        if(!flagcmd){
+            UARTprintf("Error Configuring RMAAD");
+            return NULL;
+        }
+    }
+    flagcmd = 0;
+
+    t=10000;
+    char BL_BIND[25];
+    memcpy(BL_BIND, "AT+BIND=", 9*sizeof(char));
+    strcat(BL_BIND, Bluetooth_list[id-1].addr);
+    UARTSend(BL_BIND, strlen(BL_BIND));
+    while(!flagcmd && t--){
+        SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
+    }
+    if(!flagcmd){
+        UARTSend(BL_BIND, strlen(BL_BIND));
+        t=5000;
+        while(!flagcmd && t--){
+           SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
+        }
+        if(!flagcmd){
+            UARTprintf("Error Configuring AT BIND");
+            return NULL;
+        }
+    }
+    flagcmd = 0;
+    //
+    // Turn off the Bluetooth
+    //
+    GPIOPinWrite(GPIO_PORTC_BASE, GPIO_PIN_6, 0); // Key
+    GPIOPinWrite(GPIO_PORTC_BASE, GPIO_PIN_7, 0); // VCC
+
+    SysCtlDelay(g_ui32SysClock / (1000 * 3)); // delay 1ms
+
+    //
+    // Enter the Nomal Mode
+    //
+    GPIOPinWrite(GPIO_PORTC_BASE, GPIO_PIN_7, GPIO_PIN_7); // VCC
+
+    ROM_UARTConfigSetExpClk(UART7_BASE, g_ui32SysClock, 38400,
+                            (UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE |
+                             UART_CONFIG_PAR_NONE));
+    flagMode = 1;
+    BLInService = id;
+    return 1;
 }
 
+//*****************************************************************************
+//
+// Send the request message ("1") to the Bluetooth device so that
+// the target device would send back the data
+// Received data will be received in the BTIntHandler fonction
+// Here we wait for several time and check if we have received the data (return 1 or O)
+//
+//*****************************************************************************
 int RequestBluetooth(){
     uint32_t AddrToRead = 0;
     EEPROMRead(&AddrToRead,0,4);
     UARTSend("1",2);
-    UARTprintf("MessageSent\n");
+    UARTprintf("Message Requiring Data Sent\n");
     int t = 1000;
     while(t--) SysCtlDelay(g_ui32SysClock / (1000 * 3));
     uint32_t NewAddrToRead = 0;
@@ -588,7 +629,7 @@ int RequestBluetooth(){
 
 //*****************************************************************************
 //
-// This example demonstrates the use of the Ethernet Controller.
+// Main fonction
 //
 //*****************************************************************************
 int
@@ -612,7 +653,6 @@ main(void)
                                              SYSCTL_OSC_MAIN |
                                              SYSCTL_USE_PLL |
                                              SYSCTL_CFG_VCO_480), 120000000);
-
     //
     // Configure the device pins.
     //
@@ -627,7 +667,7 @@ main(void)
     // Clear the terminal and print banner.
     //
     UARTprintf("\033[2J\033[H");
-    UARTprintf("Ethernet lwIP TCP example\n\n");
+    UARTprintf("IoT Gateway Rules!\n\n");
 
 
     //
@@ -659,8 +699,6 @@ main(void)
     //
     SysCtlPeripheralEnable(SYSCTL_PERIPH_EEPROM0);
     EEPROMInit();
-    //UARTprintf("%d\n",EEPROMSizeGet());
-    //UARTprintf("%d\n",EEPROMBlockCountGet());
     EEPROMRead(&eepromAddr,0,4);
     if(eepromAddr == 4294967295)
     {
@@ -729,7 +767,6 @@ main(void)
     // Initialize the lwIP library, using DHCP.
     //
     lwIPInit(g_ui32SysClock, pui8MACArray, 0, 0, 0, IPADDR_USE_DHCP);
-    //lwIPInit(g_ui32SysClock, pui8MACArray, 0xC0A80164, 0xFFFFFF00, 0xC0A80101, IPADDR_USE_STATIC);
     //
     // Setup the device locator service.
     //
@@ -737,16 +774,12 @@ main(void)
     LocatorMACAddrSet(pui8MACArray);
     LocatorAppTitleSet("EK-TM4C1294XL enet_io");
 
-    //
-    // Initialize a sample httpd server.
-    //
-    //httpd_init();
 
+    //
     // Initialize a tcp server
+    //
     tcp_server_test();
 
-    // Initialize a udp server
-    //udp_server_init();
 
 
     //
@@ -765,22 +798,7 @@ main(void)
 
     addBluetooth(1, "2016,11,282119",14);
     addBluetooth(2, "2016,11,295802",14);
-//    if(consultBluetooth(1)){
-//        int delay_t = 10;
-//        while(delay_t--){
-//                        SysCtlDelay(g_ui32SysClock / 3); // delay 1s
-//                        UARTprintf(".");
-//                    }
-//        if(!RequestBluetooth()) UARTprintf(" No ");
-//    }
-//    if(consultBluetooth(2)){
-//        int delay_t = 30;
-//        while(delay_t--){
-//                        SysCtlDelay(g_ui32SysClock / 3); // delay 1s
-//                        UARTprintf(".");
-//                    }
-//        if(!RequestBluetooth()) UARTprintf(" No ");
-//    }
+
 
     while(1)
     {
@@ -791,7 +809,7 @@ main(void)
                             SysCtlDelay(g_ui32SysClock / 3); // delay 1s
                             UARTprintf(".");
                         }
-            if(!RequestBluetooth()) UARTprintf(" No ");
+            if(!RequestBluetooth()) UARTprintf("\n No Response from Bluetooth 1 \n");
         }
 
 
@@ -801,7 +819,7 @@ main(void)
                             SysCtlDelay(g_ui32SysClock / 3); // delay 1s
                             UARTprintf(".");
                         }
-            if(!RequestBluetooth()) UARTprintf(" No ");
+            if(!RequestBluetooth()) UARTprintf("\n No Response from Bluetooth 2\n");
         }
 
     }

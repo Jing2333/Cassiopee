@@ -10,18 +10,13 @@ GEN_OPTS__FLAG :=
 GEN_CMDS__FLAG := 
 
 ORDERED_OBJS += \
-"./enet_fs.obj" \
 "./enet_lwip.obj" \
 "./startup_ccs.obj" \
 "./tcp_server.obj" \
 "./drivers/pinout.obj" \
-"./third_party/fatfs/port/mmc-ek-tm4c1294xl.obj" \
-"./third_party/fatfs/src/ff.obj" \
-"./third_party/lwip-1.4.1/apps/httpserver_raw/httpd.obj" \
 "./utils/locator.obj" \
 "./utils/lwiplib.obj" \
 "./utils/uartstdio.obj" \
-"./utils/udp_server.obj" \
 "./utils/ustdlib.obj" \
 "../enet_lwip_ccs.cmd" \
 $(GEN_CMDS__FLAG) \
@@ -37,15 +32,9 @@ RMDIR := RMDIR /S/Q
 -include sources.mk
 -include subdir_vars.mk
 -include drivers/subdir_vars.mk
--include third_party/fatfs/port/subdir_vars.mk
--include third_party/fatfs/src/subdir_vars.mk
--include third_party/lwip-1.4.1/apps/httpserver_raw/subdir_vars.mk
 -include utils/subdir_vars.mk
 -include subdir_rules.mk
 -include drivers/subdir_rules.mk
--include third_party/fatfs/port/subdir_rules.mk
--include third_party/fatfs/src/subdir_rules.mk
--include third_party/lwip-1.4.1/apps/httpserver_raw/subdir_rules.mk
 -include utils/subdir_rules.mk
 -include objects.mk
 
@@ -177,8 +166,8 @@ enet_lwip.bin: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(BIN_OUTPUTS__QUOTED)$(EXE_OUTPUTS__QUOTED)
-	-$(RM) "enet_fs.obj" "enet_lwip.obj" "startup_ccs.obj" "tcp_server.obj" "drivers\pinout.obj" "third_party\fatfs\port\mmc-ek-tm4c1294xl.obj" "third_party\fatfs\src\ff.obj" "third_party\lwip-1.4.1\apps\httpserver_raw\httpd.obj" "utils\locator.obj" "utils\lwiplib.obj" "utils\uartstdio.obj" "utils\udp_server.obj" "utils\ustdlib.obj" 
-	-$(RM) "enet_fs.d" "enet_lwip.d" "startup_ccs.d" "tcp_server.d" "drivers\pinout.d" "third_party\fatfs\port\mmc-ek-tm4c1294xl.d" "third_party\fatfs\src\ff.d" "third_party\lwip-1.4.1\apps\httpserver_raw\httpd.d" "utils\locator.d" "utils\lwiplib.d" "utils\uartstdio.d" "utils\udp_server.d" "utils\ustdlib.d" 
+	-$(RM) "enet_lwip.obj" "startup_ccs.obj" "tcp_server.obj" "drivers\pinout.obj" "utils\locator.obj" "utils\lwiplib.obj" "utils\uartstdio.obj" "utils\ustdlib.obj" 
+	-$(RM) "enet_lwip.d" "startup_ccs.d" "tcp_server.d" "drivers\pinout.d" "utils\locator.d" "utils\lwiplib.d" "utils\uartstdio.d" "utils\ustdlib.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

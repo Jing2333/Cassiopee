@@ -166,7 +166,7 @@ RTOS : Commence par sans RTOS, Apprendre RTOS au fil du temps
 ### Planning
 **Etape 1** : La liaison TCP et UDP entre la carte ARM et un autre terminal (avec fil ou sans fil)
 
-**Etape 2** : La liaison Bluetooth entre la carte et un autre terminal Bluetooth (ex. une carte Arduino)
+**Etape 2** : La liaison Bluetoo	th entre la carte et un autre terminal Bluetooth (ex. une carte Arduino)
 
 **Etape 3** : Algorithme pour finaliser la contrôle du terminal Bluetooth par l'internet
 

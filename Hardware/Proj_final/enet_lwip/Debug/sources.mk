@@ -113,8 +113,5 @@ PDE_DEPS__QUOTED :=
 SUBDIRS := \
 . \
 drivers \
-third_party/fatfs/port \
-third_party/fatfs/src \
-third_party/lwip-1.4.1/apps/httpserver_raw \
 utils \
 

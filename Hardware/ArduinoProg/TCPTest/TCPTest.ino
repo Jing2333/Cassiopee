@@ -9,15 +9,24 @@
 
 #include <ESP8266WiFi.h>
 
-const char* ssid = "your-ssid";
-const char* password = "your-password";
+#define LED 4
+const char* ssid = "IoTGateway";
+const char* password = "Wifi950926";
 
 // Create an instance of the server
 // specify the port to listen on as an argument
-WiFiServer server(80);
+WiFiServer server(6666);
+
+IPAddress local_IP(192, 168, 1, 111);
+IPAddress gateway(192, 168, 0, 1);
+IPAddress subnet(255, 255, 255, 0);
+IPAddress dns1(0, 0, 0, 0);
+IPAddress dns2(0, 0, 0, 0);
 
 void setup() {
   Serial.begin(115200);
+  pinMode(LED, OUTPUT);
+  digitalWrite(LED, LOW);
   delay(10);
 
   // prepare GPIO2
@@ -29,6 +38,9 @@ void setup() {
   Serial.println();
   Serial.print("Connecting to ");
   Serial.println(ssid);
+
+  WiFi.config(local_IP, gateway, subnet, dns1, dns2);
+  
   
   WiFi.begin(ssid, password);
   
@@ -56,48 +68,27 @@ void loop() {
   
   // Wait until the client sends some data
   Serial.println("new client");
-  while(!client.available()){
-    delay(1);
-  }
-//
-//  // Read the first line of the request
-//  String req = client.readStringUntil('\r');
-//  Serial.println(req);
-//  client.flush();
-//  
-//  // Match the request
-//  int val;
-//  if (req.indexOf("/gpio/0") != -1)
-//    val = 0;
-//  else if (req.indexOf("/gpio/1") != -1)
-//    val = 1;
-//  else {
-//    Serial.println("invalid request");
-//    client.stop();
-//    return;
-//  }
-//
-//  // Set GPIO2 according to the request
-//  digitalWrite(2, val);
-//  
-//  client.flush();
-//
-//  // Prepare the response
-//  String s = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE HTML>\r\n<html>\r\nGPIO is now ";
-//  s += (val)?"high":"low";
-//  s += "</html>\n";
-
-  uint8_t command[1];
-  client.read(command,1);
-  if(command[0] != '1'){
-    Serial.println("Receive error");
-    return;
-  }
-  String s = "12,34,56,78,";
-  // Send the response to the client
-  client.print(s);
+while(client.connected()){
+  if(client.available()){
+    uint8_t command[1];
+    client.read(command,1);
+    if(command[0] == '1'){
+      digitalWrite(LED, HIGH);
+      Serial.println("ON");
+      String ON = "ON";
+      //client.print(ON);
+    }
+    if(command[0] == '0'){
+      digitalWrite(LED, LOW);
+      Serial.println("OFF");
+      String OFF = "OFF";
+      //client.print(OFF);
+    }
   delay(1);
+  }
+}
   Serial.println("Client disonnected");
+  return;
 
   // The client will actually be disconnected 
   // when the function returns and 'client' object is detroyed

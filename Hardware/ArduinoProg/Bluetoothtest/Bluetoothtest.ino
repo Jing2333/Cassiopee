@@ -1,8 +1,11 @@
+#include <DHT.h>
+
 #include <SoftwareSerial.h>
  
 SoftwareSerial mySerial(10, 11); // RX, TX
 #define VCC 7
 #define EN 6
+DHT dht11(8,DHT11);
 
 /* ---------------------DHT11模块初始化-------------------- */
 const int dataPin = 8;    // 引脚定义
@@ -36,6 +39,10 @@ void setup()
 
 /*-------------DHT11模块读取温湿度信息程序。一般情况无需修改---------------------*/
 int readDHT11() {
+  //int readData = dht11.read11(dataPin);
+  temperature = (int)dht11.readTemperature(); // Gets the values of the temperature
+  humidity = (int)dht11.readHumidity(); // Gets the values of the humidity
+  /*
   uint8_t recvBuffer[5];  // <1>
   uint8_t cnt = 7;
   uint8_t idx = 0;
@@ -81,6 +88,7 @@ int readDHT11() {
   temperature = recvBuffer[2];  // C
   uint8_t sum = recvBuffer[0] + recvBuffer[2];
   if (recvBuffer[4] != sum) return -2; // <10>
+  */
   return 0;
 }
 /*--------------------------------------------------------------------------*/
@@ -90,6 +98,8 @@ void loop() // run over and over
 //  delay(1000);
 //  mySerial.write("12 ");
 //  Serial.write("12 ");
+readDHT11();
+Serial.println(humidity);
   int msg_recv; 
   if(mySerial.available())
   {

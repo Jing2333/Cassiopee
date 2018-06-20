@@ -82,6 +82,7 @@ err_t tcp_server_accept(void *arg,struct tcp_pcb *newpcb,err_t err)
         tcp_poll(newpcb,tcp_server_poll,1);
         tcp_sent(newpcb,tcp_server_sent);
 
+        UARTprintf("\nPhone connected\n");
         //tcp_server_flag|=1<<5;
 
         ret_err=ERR_OK;
@@ -113,7 +114,8 @@ err_t tcp_server_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err
             memset(tcp_server_recvbuf,0,TCP_SERVER_RX_BUFSIZE);
             for(q=p;q!=NULL;q=q->next)
             {
-                if(q->len > (TCP_SERVER_RX_BUFSIZE-data_len)) MEMCPY(tcp_server_recvbuf+data_len,q->payload,(TCP_SERVER_RX_BUFSIZE-data_len));//拷贝数据
+                if(q->len > (TCP_SERVER_RX_BUFSIZE-data_len))
+                    MEMCPY(tcp_server_recvbuf+data_len,q->payload,(TCP_SERVER_RX_BUFSIZE-data_len));
                 else MEMCPY(tcp_server_recvbuf+data_len,q->payload,q->len);
                 data_len += q->len;
                 if(data_len > TCP_SERVER_RX_BUFSIZE) break;
@@ -144,7 +146,6 @@ void tcp_server_error(void *arg,err_t err)
     if(arg!=NULL)mem_free(arg);
 }
 
-// Non utilisé
 err_t tcp_server_poll(void *arg, struct tcp_pcb *tpcb)
 {
     err_t ret_err;
@@ -152,18 +153,15 @@ err_t tcp_server_poll(void *arg, struct tcp_pcb *tpcb)
     es=(struct tcp_server_struct *)arg;
     if(es!=NULL)
     {
-        UARTprintf("\nNormal\n");
         if(receive_flag == 1){
-            UARTprintf("\nSuper\n");
+            UARTprintf("\nSuper! I have received the request for data\n");
 
             static uint32_t eepromAddr;
             EEPROMRead(&eepromAddr,0,4);
             if(eepromAddr == 0){
                 char* str_nodata = "No Data";
-                //tcp_server_sendbuf = malloc(strlen(str_nodata)+1);
                 strcpy(tcp_server_sendbuf,str_nodata);
             } else {
-                //tcp_server_sendbuf = malloc(8*sizeof(char)*eepromAddr+1);
                 *tcp_server_sendbuf = '\0';
                 if(eepromAddr != 4294967295)
                 {
@@ -172,7 +170,6 @@ err_t tcp_server_poll(void *arg, struct tcp_pcb *tpcb)
                     char bufferConvert[10];
                     for (var = 4; var <= eepromAddr; var+=4) {
                         EEPROMRead(&temp,var,4);
-                        //UARTprintf("%d ",temp);
                         sprintf(bufferConvert,"%d",temp);
                         UARTprintf("%s",bufferConvert);
                         strcat(tcp_server_sendbuf,bufferConvert);
@@ -185,10 +182,10 @@ err_t tcp_server_poll(void *arg, struct tcp_pcb *tpcb)
                 }
             }
 
-            es->p=pbuf_alloc(PBUF_TRANSPORT,strlen((char*)tcp_server_sendbuf),PBUF_POOL);//申请内存
+            es->p=pbuf_alloc(PBUF_TRANSPORT,strlen((char*)tcp_server_sendbuf),PBUF_POOL);
             pbuf_take(es->p,(char*)tcp_server_sendbuf,strlen((char*)tcp_server_sendbuf));
             tcp_server_senddata(tpcb,es);
-            if(es->p!=NULL)pbuf_free(es->p);    //释放内存
+            if(es->p!=NULL)pbuf_free(es->p);
 
             receive_flag = 0;
         } else if(es->state==ES_TCPSERVER_CLOSING)
@@ -244,4 +241,5 @@ void tcp_server_connection_close(struct tcp_pcb *tpcb, struct tcp_server_struct 
     tcp_err(tpcb,NULL);
     tcp_poll(tpcb,NULL,0);
     if(es)mem_free(es);
+    UARTprintf("\nPhone disconnected\n");
 }
