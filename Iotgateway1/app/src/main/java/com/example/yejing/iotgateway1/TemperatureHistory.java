@@ -14,8 +14,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import lecho.lib.hellocharts.gesture.ContainerScrollType;
@@ -41,9 +44,12 @@ public class TemperatureHistory extends AppCompatActivity {
         private SimpleCursorAdapter adapter;
         private int _id=0;
         private LineChartView lineChart;
+        private long time = System.currentTimeMillis();
+        private Date curDate = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
 
-        String[] date = {"10-22","11-22","12-22","1-22","6-22","5-23","5-22","6-22","5-23","5-22"};//X轴的标注
-        int[] score= {50,42,90,33,10,74,22,18,79,20};//图表的数据点
+        String[] date = new String[20];//X轴的标注
+        int[] value = new int[20];//图表的数据点
         private List<PointValue> mPointValues = new ArrayList<PointValue>();
         private List<AxisValue> mAxisXValues = new ArrayList<AxisValue>();
 
@@ -61,6 +67,7 @@ public class TemperatureHistory extends AppCompatActivity {
         adapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, cursor, new String[]{"temperature"}, new int[]{android.R.id.text1}, 0);
         listView.setAdapter(adapter);
 
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("History");
         toolbar.setTitleTextColor(Color.WHITE);
@@ -69,16 +76,29 @@ public class TemperatureHistory extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(TemperatureHistory.this,TemperatureDetection.class);
+                Intent intent = new Intent(TemperatureHistory.this,TemHumDetection.class);
                 startActivity(intent);
                 finish();
             }
         });
 
-        lineChart = findViewById(R.id.line_chart);
-        getAxisXLables();//获取x轴的标注
-        getAxisPoints();//获取坐标点
-        initLineChart();//初始化
+        if(cursor.moveToFirst()) {
+            for (int i = 0; i < 20; i++) {
+                cursor.moveToPosition(i);
+                value[19 - i] = cursor.getInt(1);
+                curDate.setTime(time - 60000 * i);
+                date[19 - i] = formatter.format(curDate);
+            }
+        }
+        if(cursor.moveToFirst()) {
+            lineChart = findViewById(R.id.line_chart);
+            getAxisXLables();
+            getAxisPoints();
+            initLineChart();
+        }
+        else {
+            Toast.makeText(getApplicationContext(), "Nothing received yet", Toast.LENGTH_LONG).show();
+        }
 
 
     }
@@ -117,10 +137,6 @@ public class TemperatureHistory extends AppCompatActivity {
                     builder.create().show();
                     break;
             }
-
-//                if(!msg.equals("")) {
-//                    Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
-//                }
             return true;
         }
     };
@@ -137,8 +153,8 @@ public class TemperatureHistory extends AppCompatActivity {
      * 图表的每个点的显示
      */
     private void getAxisPoints() {
-        for (int i = 0; i < score.length; i++) {
-            mPointValues.add(new PointValue(i, score[i]));
+        for (int i = 0; i < value.length; i++) {
+            mPointValues.add(new PointValue(i, value[i]));
         }
     }
     private void initLineChart(){
@@ -206,7 +222,7 @@ public class TemperatureHistory extends AppCompatActivity {
     @Override
     public boolean onKeyDown(int keycode,KeyEvent event) {
         if (keycode == KeyEvent.KEYCODE_BACK) {
-            Intent intent = new Intent(this, TemperatureDetection.class);
+            Intent intent = new Intent(this, TemHumDetection.class);
             startActivity(intent);
             finish();
             return true;

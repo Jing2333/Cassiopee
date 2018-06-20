@@ -17,20 +17,22 @@ import at.markushi.ui.CircleButton;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        if (android.os.Build.VERSION.SDK_INT > 9) {
-//            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-//            StrictMode.setThreadPolicy(policy);
-//        }
 
+        //Autoriser la connextion dans le main thread
+        if (android.os.Build.VERSION.SDK_INT > 9) {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+        }
+        //Premier bouton
         btnTemp = findViewById(R.id.btntemp);
         btnTemp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i =new Intent(view.getContext(),TemperatureDetection.class);
+                Intent i =new Intent(view.getContext(),TemHumDetection.class);
                 startActivity(i);
             }
         });
-
+        //Deuxième bouton
         btnLight = findViewById(R.id.btnlight);
         btnLight.setOnClickListener(new View.OnClickListener() {
             @Override

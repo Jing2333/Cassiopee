@@ -11,10 +11,8 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
-
+//Base de données pour stocker les valeurs de température
 public class DBHelper extends SQLiteOpenHelper {
     private final static String DB_NAME="temperature.db";
     private final static int DB_VERSION=1;
@@ -32,31 +30,29 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
     }
+
+    //ajouter une ligne de données
     public long insert(String text){
         ContentValues contentValues=new ContentValues();
         contentValues.put("temperature",text);
-
-
-//        SimpleDateFormat formatter=new SimpleDateFormat("yy-MM-dd HH:mm");
-//        Date curDate =  new Date(System.currentTimeMillis());
-//        String time=formatter.format(curDate);
-
-
-//        contentValues.put("date",time);
         long row=database.insert(TABLE_NAME,null,contentValues);
-//        Log.e("time:", time);
         Log.e("temperature", text);
         return row;
     }
 
+    //mettre à jour la base de données
     public void update(int _id,String text){
         ContentValues contentValues=new ContentValues();
         contentValues.put("temperature",text);
         database.update(TABLE_NAME,contentValues,ID+"=?",new String[]{Integer.toString(_id)});
     }
+
+    //supprimer une ligne
     public void delete(int _id){
         database.delete(TABLE_NAME, ID + "=?", new String[]{Integer.toString(_id)});
     }
+
+    //vider la base de données
     public void deleteAll() {
         database.execSQL("delete from "+ TABLE_NAME);
     }
@@ -65,7 +61,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return cursor;
     }
 
-
+    //exporter la base de données en .CSV
     public void exportDB(Context mcontext) {
         String path = Environment.getExternalStorageDirectory().getAbsolutePath()+"/Android/data/iotgateway";
         File exportDir = new File(path, "");

@@ -1,26 +1,18 @@
 package com.example.yejing.iotgateway1;
 
-/**
- * Created by YE Jing on 2018/5/29.
- */
-
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.suke.widget.SwitchButton;
+
 import java.lang.ref.WeakReference;
-import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -31,7 +23,6 @@ import java.util.concurrent.Executors;
 public class LightControl extends Activity {
     public static Context context;
     private MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
-//    private MyHandler myHandler = new MyHandler(this);
     public String targetIpAddress;
     public int targetPort;
 
@@ -49,39 +40,41 @@ public class LightControl extends Activity {
         targetPort = 6666;
         mTCPCL.setIpAddress(targetIpAddress);
         mTCPCL.setTargetPort(targetPort);
-        final Button btnOn =  findViewById(R.id.btnOnTCPCL);
-        final Button btnOff = findViewById(R.id.btnOffTCPCL);
-
+        final SwitchButton switchButton = findViewById(R.id.switch_button);
 
 
         exec.execute(mTCPCL);
 
 
-        btnOn.setOnClickListener(new View.OnClickListener() {
+        switchButton.setChecked(false);
+        switchButton.isChecked();
+        switchButton.toggle();     //switch state
+        switchButton.toggle(true);//switch with animation
+        switchButton.setShadowEffect(true);//enable shadow effect
+        switchButton.setEnabled(true);//enable button
+        switchButton.setEnableEffect(true);//enable the switch animation
+        switchButton.setOnCheckedChangeListener(new SwitchButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View view) {
-                mTCPCL.setTextToBeSent("1");
-                exec.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        mTCPCL.send();
-                    }
-                });
-                Toast.makeText(getApplicationContext(), "Light On", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        btnOff.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mTCPCL.setTextToBeSent("0");
-                exec.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        mTCPCL.send();
-                    }
-                });
-                Toast.makeText(getApplicationContext(), "Light Off", Toast.LENGTH_SHORT).show();
+            public void onCheckedChanged(SwitchButton view, boolean isChecked) {
+                if (isChecked) {
+                    mTCPCL.setTextToBeSent("1");
+                    exec.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            mTCPCL.send();
+                        }
+                    });
+                    Toast.makeText(getApplicationContext(), "Light On", Toast.LENGTH_SHORT).show();
+                } else {
+                    mTCPCL.setTextToBeSent("0");
+                    exec.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            mTCPCL.send();
+                        }
+                    });
+                    Toast.makeText(getApplicationContext(), "Light Off", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -119,44 +112,11 @@ public class LightControl extends Activity {
     }
 
     private class MyHandler extends Handler {
-        private final WeakReference<TemperatureDetection> mActivity;
+        private final WeakReference<TemHumDetection> mActivity;
 
-        public MyHandler(TemperatureDetection activity) {
-            mActivity = new WeakReference<TemperatureDetection>(activity);
+        public MyHandler(TemHumDetection activity) {
+            mActivity = new WeakReference<TemHumDetection>(activity);
         }
-
-//        @Override
-//        public void handleMessage(Message msg) {
-//            TemperatureDetection activity = mActivity.get();
-//            if (null != activity) {
-//                String str = msg.obj.toString();
-//                String str2="";
-//                communication.append("\r\n Message received : ");
-//                communication.append(str);
-//                for(int i=0;i<str.length();i++){
-//                    if(str.charAt(i)=='1'&&str.charAt(i+1)==','){
-//                        int j = i+2;
-//                        while(j<str.length()&&str.charAt(j)!=',') {
-//                            str2+=str.charAt(j);
-//                            j++;
-//                        }
-//                        addData1(str2);
-//                        str2="";
-//                        i=j;
-//                    }
-//                    else if(str.charAt(i)=='2'&&str.charAt(i+1)==','){
-//                        int j = i+2;
-//                        while(j<str.length()&&str.charAt(j)!=',') {
-//                            str2+=str.charAt(j);
-//                            j++;
-//                        }
-//                        addData2(str2);
-//                        str2="";
-//                        i=j;
-//                    }
-//                }
-//            }
-//        }
     }
 }
 

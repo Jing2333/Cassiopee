@@ -9,6 +9,8 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -25,7 +27,7 @@ import info.hoang8f.widget.FButton;
  * Created by YE Jing on 2018/3/3.
  */
 
-public class TemperatureDetection extends Activity {
+public class TemHumDetection extends Activity {
     public static Context context;
     private MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
     private MyHandler myHandler = new MyHandler(this);
@@ -45,54 +47,87 @@ public class TemperatureDetection extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.temperature);
+        setContentView(R.layout.detection_temhum);
         context = this;
         BindReceiver();
-        targetIpAddress = "192.168.1.100";
-        targetPort = 8088;
-        mTCPCL.setIpAddress(targetIpAddress);
-        mTCPCL.setTargetPort(targetPort);
+
         dbHelper=new DBHelper(this);
         cursor=dbHelper.select();
         dbHelper2=new DBHelper2(this);
         cursor2=dbHelper2.select();
-        final FButton btnSend =  findViewById(R.id.btnSendTCPCL);
+        final FButton btnConnect =  findViewById(R.id.btnConnectTCPCL);
         final FButton btnTem = findViewById(R.id.btnTemperatureTCPCL);
         final FButton btnHum = findViewById(R.id.btnHumidityTCPCL);
+        final FButton btnSync = findViewById(R.id.btnSyncTCPCL);
         communication = findViewById(R.id.communicationTCPCL);
-        inputText =  findViewById(R.id.editTextSendTCPCL) ;
+        inputText =  findViewById(R.id.editTextSendTCPCL);
 
-        sPort = Integer.toString(targetPort);
+        btnConnect.setEnabled(false);
+        btnSync.setEnabled(false);
 
-        communication.append("\r\n Connected to ");
-        communication.append(targetIpAddress);
-        communication.append(" : ");
-        communication.append(sPort);
+        inputText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-        exec.execute(mTCPCL);
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if(inputText.length()!=0){
+                    btnConnect.setEnabled(true);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
 
 
-        btnSend.setOnClickListener(new View.OnClickListener() {
+
+
+        btnConnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                communication.append("\r\n Message sent ");
+                targetIpAddress = inputText.getText().toString();
+                targetPort = 8088;
+                mTCPCL.setIpAddress(targetIpAddress);
+                mTCPCL.setTargetPort(targetPort);
+                sPort = Integer.toString(targetPort);
+                btnSync.setEnabled(true);
+
+                communication.append("\r\n Connected to ");
+                communication.append(targetIpAddress);
+                communication.append(" : ");
+                communication.append(sPort);
+
+                exec.execute(mTCPCL);
+            }
+        });
+
+        btnSync.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                communication.append("\r\n Receiving data by sending ");
                 communication.append(": ");
-                mTCPCL.setTextToBeSent(inputText.getText().toString());
+                mTCPCL.setTextToBeSent("1");
                 exec.execute(new Runnable() {
                     @Override
                     public void run() {
                         mTCPCL.send();
                     }
                 });
-                communication.append(inputText.getText().toString());
+                communication.append("1");
             }
         });
 
         btnTem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(TemperatureDetection.this, TemperatureHistory.class);
+                Intent intent = new Intent(TemHumDetection.this, TemperatureHistory.class);
                 startActivity(intent);
                 finish();
             }
@@ -101,7 +136,7 @@ public class TemperatureDetection extends Activity {
         btnHum.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(TemperatureDetection.this, HumidityHistory.class);
+                Intent intent = new Intent(TemHumDetection.this, HumidityHistory.class);
                 startActivity(intent);
                 finish();
             }
@@ -144,7 +179,6 @@ public class TemperatureDetection extends Activity {
                     Message message = new Message();
                     message.obj = msg;
                     myHandler.sendMessage(message);
-                    //Log.d(TAG, "onReceive: receive!");
                     Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
                     break;
             }
@@ -152,15 +186,15 @@ public class TemperatureDetection extends Activity {
     }
 
     private class MyHandler extends Handler {
-        private final WeakReference<TemperatureDetection> mActivity;
+        private final WeakReference<TemHumDetection> mActivity;
 
-        public MyHandler(TemperatureDetection activity) {
-            mActivity = new WeakReference<TemperatureDetection>(activity);
+        public MyHandler(TemHumDetection activity) {
+            mActivity = new WeakReference<TemHumDetection>(activity);
         }
 
         @Override
         public void handleMessage(Message msg) {
-            TemperatureDetection activity = mActivity.get();
+            TemHumDetection activity = mActivity.get();
             if (null != activity) {
                 String str = msg.obj.toString();
                 String str2="";
@@ -189,9 +223,6 @@ public class TemperatureDetection extends Activity {
                     }
                 }
             }
-        }
-        public Date getCurDate() {
-            return curDate;
         }
     }
 }

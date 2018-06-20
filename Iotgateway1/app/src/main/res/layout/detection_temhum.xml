@@ -8,7 +8,7 @@
         android:id="@+id/layoutHistory"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_below="@id/layoutSend"
+        android:layout_below="@id/layoutConnect"
         android:layout_marginTop="20dp">
 
         <!--<Button-->
@@ -80,7 +80,7 @@
     </RelativeLayout>
 
     <RelativeLayout
-        android:id="@+id/layoutSend"
+        android:id="@+id/layoutConnect"
         android:layout_marginTop="20dp"
         android:layout_width="match_parent"
         android:layout_height="60dp"
@@ -94,7 +94,7 @@
             android:inputType="text"
             android:textSize="20sp" />
         <info.hoang8f.widget.FButton
-            android:id="@+id/btnSendTCPCL"
+            android:id="@+id/btnConnectTCPCL"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
@@ -112,4 +112,22 @@
             />
 
     </RelativeLayout>
+    <info.hoang8f.widget.FButton
+        android:id="@+id/btnSyncTCPCL"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        fbutton:fButtonColor="@color/colorPrimary"
+        fbutton:shadowColor="@color/fbutton_color_concrete"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        fbutton:shadowEnabled="true"
+        fbutton:shadowHeight="5dp"
+        fbutton:cornerRadius="30dp"
+        android:text="Synchronize"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textAllCaps="false"
+        android:textColor="@color/Background"
+        />
 </RelativeLayout>
