@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:fbutton="http://schemas.android.com/apk/res-auto">
+
+    <RelativeLayout
+        android:id="@+id/layoutHistory"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_below="@id/layoutConnect"
+        android:layout_marginTop="20dp">
+
+        <!--<Button-->
+            <!--android:id="@+id/btnTemperatureTCPCL"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_alignParentStart="true"-->
+            <!--android:text="Temperature" />-->
+
+        <info.hoang8f.widget.FButton
+            android:id="@+id/btnTemperatureTCPCL"
+            fbutton:fButtonColor="@color/colorPrimary"
+            fbutton:shadowColor="@color/fbutton_color_concrete"
+            android:layout_width="130dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_alignParentStart="true"
+            fbutton:shadowEnabled="true"
+            fbutton:shadowHeight="5dp"
+            fbutton:cornerRadius="5dp"
+            android:text="@string/temperature"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textAllCaps="false"
+            android:textColor="@color/Background"/>
+        <info.hoang8f.widget.FButton
+            android:id="@+id/btnHumidityTCPCL"
+            fbutton:fButtonColor="@color/colorPrimary"
+            fbutton:shadowColor="@color/fbutton_color_concrete"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:layout_alignParentEnd="true"
+            fbutton:shadowEnabled="true"
+            fbutton:shadowHeight="5dp"
+            fbutton:cornerRadius="5dp"
+            android:text="@string/humidity"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textAllCaps="false"
+            android:textColor="@color/Background"/>
+
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/layoutCom"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/layoutHistory"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true">
+
+            <TextView
+                android:id="@+id/communicationTCPCL"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                ></TextView>
+        </ScrollView>
+
+
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/layoutConnect"
+        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentTop="true">
+        <EditText
+            android:id="@+id/editTextSendTCPCL"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:ems="10"
+            android:inputType="text"
+            android:textSize="20sp" />
+        <info.hoang8f.widget.FButton
+            android:id="@+id/btnConnectTCPCL"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            fbutton:fButtonColor="@color/colorPrimary"
+            fbutton:shadowColor="@color/fbutton_color_concrete"
+            android:layout_alignParentEnd="true"
+            fbutton:shadowEnabled="true"
+            fbutton:shadowHeight="5dp"
+            fbutton:cornerRadius="5dp"
+            android:text="@string/connect"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textAllCaps="false"
+            android:textColor="@color/Background"
+            />
+
+    </RelativeLayout>
+    <info.hoang8f.widget.FButton
+        android:id="@+id/btnSyncTCPCL"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        fbutton:fButtonColor="@color/colorPrimary"
+        fbutton:shadowColor="@color/fbutton_color_concrete"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        fbutton:shadowEnabled="true"
+        fbutton:shadowHeight="5dp"
+        fbutton:cornerRadius="30dp"
+        android:text="Synchronize"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textAllCaps="false"
+        android:textColor="@color/Background"
+        />
+</RelativeLayout>

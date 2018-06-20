@@ -55,8 +55,7 @@ public class tcpServer extends Activity {
         final Button btnDisconnect = findViewById(R.id.btnDisconnectTCPS);
         final EditText inputLocalPort = (EditText)findViewById(R.id.editTextlocalPortTCPS);
         communication = (TextView) findViewById(R.id.communicationTCPS);
-        final EditText inputText = (EditText) findViewById(R.id.editTextSendTCPS) ;
-
+        final EditText inputText = (EditText) findViewById(R.id.editTextSendTCPS);
         btnDisconnect.setEnabled(false);
         btnConnect.setEnabled(true);
         btnSend.setEnabled(false);

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_below="@id/imageView"
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Welcome! You want..."
+        android:textSize="20dp"/>
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="310dp"
+        android:scaleType="fitCenter"
+        android:contentDescription="@string/mainimage"
+        android:src="@drawable/mainpage"/>
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:id="@+id/frameLayout"
+        android:layout_below="@id/textView">
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_centerHorizontal="true" />
+
+
+        <RelativeLayout
+            android:id="@+id/button1"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/divider"
+            android:layout_gravity="center"
+            android:layout_marginStart="29dp"
+            android:layout_toEndOf="@+id/divider">
+
+            <at.markushi.ui.CircleButton
+                android:id="@+id/btnlight"
+                android:layout_width="128dip"
+                android:layout_height="128dip"
+                android:src="@drawable/light"
+                app:cb_color="#43bac9"
+                app:cb_pressedRingWidth="12dip" />
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/btnlight"
+                android:layout_centerHorizontal="true"
+                android:text="@string/light_control" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/divider"
+            android:layout_gravity="center"
+            android:layout_marginEnd="29dp"
+            android:layout_toStartOf="@+id/divider">
+
+            <at.markushi.ui.CircleButton
+                android:id="@+id/btntemp"
+                android:layout_width="128dip"
+                android:layout_height="128dip"
+                android:src="@drawable/temhum"
+                app:cb_color="#43bac9"
+                app:cb_pressedRingWidth="12dip" />
+
+            <TextView
+                android:id="@+id/textView1"
+                android:layout_width="128dip"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/btntemp"
+                android:gravity="center"
+                android:text="@string/temperature_humidity_detection" />
+
+        </RelativeLayout>
+
+
+    </RelativeLayout>
+</RelativeLayout>
+

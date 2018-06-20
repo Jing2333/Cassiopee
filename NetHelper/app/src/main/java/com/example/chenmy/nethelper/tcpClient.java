@@ -141,10 +141,10 @@ public class tcpClient extends Activity {
                     Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_SHORT).show();
                     break;
             }
-        }
     }
+}
 
-    private class MyHandler extends Handler {
+private class MyHandler extends Handler {
         private final WeakReference<tcpClient> mActivity;
         public MyHandler(tcpClient activity) {
             mActivity = new WeakReference<tcpClient>(activity);

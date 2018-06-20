@@ -10,6 +10,7 @@ GEN_OPTS__FLAG :=
 GEN_CMDS__FLAG := 
 
 ORDERED_OBJS += \
+"./bl_fs.obj" \
 "./hello.obj" \
 "./startup_ccs.obj" \
 "./drivers/pinout.obj" \
@@ -147,7 +148,7 @@ all: hello.out
 hello.out: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: ARM Linker'
-	"C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/bin/armcl" -mv7M4 --code_state=16 --float_support=FPv4SPD16 --abi=eabi -me -O2 --advice:power=all -g --gcc --define=ccs="ccs" --define=PART_TM4C1294NCPDT --define=TARGET_IS_TM4C129_RA0 --diag_warning=225 --diag_wrap=off --display_error_number --gen_func_subsections=on --ual -z -m"hello_ccs.map" --stack_size=512 --heap_size=0 -i"C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/lib" -i"C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/include" --reread_libs --diag_wrap=off --display_error_number --warn_sections --xml_link_info="hello_linkInfo.xml" --rom_model -o "hello.out" $(ORDERED_OBJS)
+	"C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/bin/armcl" -mv7M4 --code_state=16 --float_support=FPv4SPD16 --abi=eabi -me -O2 --advice:power="all" -g --gcc --define=ccs="ccs" --define=PART_TM4C1294NCPDT --define=TARGET_IS_TM4C129_RA0 --diag_warning=225 --diag_wrap=off --display_error_number --gen_func_subsections=on --ual -z -m"hello_ccs.map" --stack_size=512 --heap_size=512 -i"C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/lib" -i"C:/ti/ccsv7/tools/compiler/ti-cgt-arm_16.9.4.LTS/include" --reread_libs --diag_wrap=off --display_error_number --warn_sections --xml_link_info="hello_linkInfo.xml" --rom_model -o "hello.out" $(ORDERED_OBJS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 	@$(MAKE) --no-print-directory post-build
@@ -162,8 +163,8 @@ hello.bin: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(BIN_OUTPUTS__QUOTED)$(EXE_OUTPUTS__QUOTED)
-	-$(RM) "hello.obj" "startup_ccs.obj" "drivers\pinout.obj" "utils\uartstdio.obj" 
-	-$(RM) "hello.d" "startup_ccs.d" "drivers\pinout.d" "utils\uartstdio.d" 
+	-$(RM) "bl_fs.obj" "hello.obj" "startup_ccs.obj" "drivers\pinout.obj" "utils\uartstdio.obj" 
+	-$(RM) "bl_fs.d" "hello.d" "startup_ccs.d" "drivers\pinout.d" "utils\uartstdio.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

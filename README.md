@@ -3,6 +3,70 @@ TM4C1294 Gateway
 
 
 
+## CR 07-08 (26/03-08/04)
+
+Pas d'avancement car la semaine de Projet Challenge d'Endreprendre et les CFs qui suivent.
+
+
+
+## CR 06 (19/03-25/03)
+
+#### Tâches Réalisées
+
+- Partie Hardware **BLOQUE**
+  - Serveur + client nécessite plusieurs Threads, difficile à réaliser en utilisant LWIP RAW
+  - Manque de tutoriaux de la part de RTOS
+
+#### Tâches à venir
+
+- Partie Hardware : Trouver une solution...
+
+
+
+## CR 05 (12/03-18/03)
+
+#### Tâches Réalisées
+
+- Soumission du Livrable 1
+- Etablissement d'un serveur TCP sur la carte TIVA
+
+#### Tâches à venir
+
+- Voir la possibilité d'établir plusieurs connexions (serveur+client)
+
+
+
+## CR 04 (05/03-11/03)
+
+#### Tâches Réalisées
+
+- Finalisation de la partie Bluetooth
+
+
+- Présentation de la liaison Bluetooth
+
+#### Tâches à venir
+
+- Revoir les livrables et les envoyer
+- Etablir un seveur TCP sur la carte TIVA
+
+
+
+## CR 03 (19/02-04/03)
+
+#### Tâches Réalisées
+- Réalisation de la liaison Bluetooth
+- Enregistration des données dans EEPROM
+- Echange des données via TCP entre le portable(comme le client) et le PC
+
+
+#### Tâches à venir
+- Echange des données via TCP sur la carte
+- Amélioration de Layout d'app
+- Etude de possibilité d'obtenir les données via HTTP
+
+
+
 ## CR 02 (05/02-18/02)
 
 #### Tâches Réalisées
@@ -102,7 +166,7 @@ RTOS : Commence par sans RTOS, Apprendre RTOS au fil du temps
 ### Planning
 **Etape 1** : La liaison TCP et UDP entre la carte ARM et un autre terminal (avec fil ou sans fil)
 
-**Etape 2** : La liaison Bluetooth entre la carte et un autre terminal Bluetooth (ex. une carte Arduino)
+**Etape 2** : La liaison Bluetoo	th entre la carte et un autre terminal Bluetooth (ex. une carte Arduino)
 
 **Etape 3** : Algorithme pour finaliser la contrôle du terminal Bluetooth par l'internet
 
